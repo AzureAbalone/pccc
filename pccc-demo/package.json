@@ -1,0 +1,19 @@
+{
+	"name": "pccc-demo",
+	"version": "1.0.0",
+	"private": true,
+	"workspaces": [
+		"frontend",
+		"backend",
+		"shared"
+	],
+	"scripts": {
+		"dev": "bun run --filter '*' dev",
+		"build": "bun run --filter '*' build",
+		"lint": "bun run --filter '*' lint",
+		"test": "bun run --filter '@pccc/backend' test"
+	},
+	"devDependencies": {
+		"typescript": "^5.7.3"
+	}
+}
