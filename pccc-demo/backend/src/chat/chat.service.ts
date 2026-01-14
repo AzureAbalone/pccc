@@ -1,7 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import got from 'got';
-import { SYSTEM_PROMPT } from './system-prompt.js';
+import {
+    SYSTEM_PROMPT,
+    SYSTEM_PROMPT_OVERVIEW,
+    SYSTEM_PROMPT_ESCAPE,
+    SYSTEM_PROMPT_FIRE_SPREAD,
+    SYSTEM_PROMPT_TRAFFIC,
+    SYSTEM_PROMPT_TECHNICAL
+} from './system-prompt.js';
 
 @Injectable()
 export class ChatService {
@@ -15,11 +22,39 @@ export class ChatService {
         this.siteName = this.configService.get<string>('SITE_NAME') || 'PCCC Demo';
     }
 
-    async generateResponse(userPrompt: string, systemPrompt: string = SYSTEM_PROMPT): Promise<any> {
+    private getSystemPrompt(section?: string): string {
+        switch (section) {
+            case 'overview': return SYSTEM_PROMPT_OVERVIEW;
+            case 'escape': return SYSTEM_PROMPT_ESCAPE;
+            case 'fire_spread': return SYSTEM_PROMPT_FIRE_SPREAD;
+            case 'traffic': return SYSTEM_PROMPT_TRAFFIC;
+            case 'technical': return SYSTEM_PROMPT_TECHNICAL;
+            default: return SYSTEM_PROMPT;
+        }
+    }
+
+    private getMaxTokens(section?: string): number {
+        switch (section) {
+            case 'overview': return 500;
+            case 'escape': return 1000;
+            case 'fire_spread': return 1000;
+            case 'traffic': return 800;
+            case 'technical': return 1000;
+            default: return 2000; // Safe limit for GPT-3.5
+        }
+    }
+
+    async generateResponse(userPrompt: string, section?: string): Promise<any> {
+        const systemPrompt = this.getSystemPrompt(section);
+        const maxTokens = this.getMaxTokens(section);
+
         try {
             const response = await got.post('https://openrouter.ai/api/v1/chat/completions', {
                 json: {
-                    model: this.configService.get<string>('MODEL_ID') || 'google/gemini-3-pro-preview',
+                    // Fallback to User's requested model: GPT-3.5 Turbo
+                    model: this.configService.get<string>('MODEL_ID') || 'openai/gpt-4o-mini',
+                    max_tokens: maxTokens,
+                    temperature: 0.3,
                     messages: [
                         {
                             role: 'system',
@@ -39,8 +74,8 @@ export class ChatService {
             }).json();
 
             return response;
-        } catch (error) {
-            console.error('Error calling OpenRouter API:', error);
+        } catch (error: any) {
+            console.error(`Error calling OpenRouter API (Section: ${section || 'default'}):`, error.response?.body || error.message);
             throw error;
         }
     }

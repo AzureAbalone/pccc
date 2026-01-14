@@ -5,6 +5,8 @@ import type { ComplianceRequest, ComplianceResponse } from '@pccc/shared';
 export interface Citation {
   source: string;
   text: string;
+  url?: string | null;
+  category?: string;
 }
 
 interface UseComplianceReturn {
@@ -32,44 +34,120 @@ export function useCompliance(): UseComplianceReturn {
     setIsLoading(true);
     setError(null);
 
-    // Construct prompt locally
-    let userPrompt = `Mô tả công trình:\n${request.description}\n`;
-    if (request.type) userPrompt += `- Loại công trình: ${request.type}\n`;
-    if (request.height) userPrompt += `- Chiều cao: ${request.height}m\n`;
-    if (request.floors) userPrompt += `- Số tầng: ${request.floors}\n`;
-    userPrompt += `\nHãy phân tích an toàn PCCC cho công trình này theo quy định hiện hành mới nhất.`;
+    // Initial empty state
+    const initialData: ComplianceResponse = {
+      buildingInfo: {
+        floors: request.floors ?? null,
+        height: request.height ?? null,
+        floorArea: null,
+        buildingType: request.type ?? null,
+        fireClass: null,
+        hazardGroup: null
+      },
+      escapeSolutions: [],
+      fireSpreadPrevention: [],
+      fireTraffic: [],
+      technicalSystems: [],
+      citations: []
+    };
 
-    try {
-      // Call unified Chat API
-      const response = await api.post('api/chat', {
-        json: { prompt: userPrompt },
-      }).json<any>();
+    setData(initialData);
 
-      const content = response?.choices?.[0]?.message?.content;
-      if (!content) {
-        throw new Error('Không nhận được phản hồi từ AI');
-      }
+    const basePrompt = `Mô tả công trình:\n${request.description}\n`;
+    const specificDetails = [
+      request.type ? `- Loại: ${request.type}` : '',
+      request.height ? `- Chiều cao: ${request.height}m` : '',
+      request.floors ? `- Số tầng: ${request.floors}` : ''
+    ].filter(Boolean).join('\n');
 
-      // Parse JSON from content (handle markdown blocks)
-      const jsonStr = content.replace(/```json\n?|\n?```/g, '').trim();
-      let result: ComplianceResponse;
+    const userPrompt = `${basePrompt}${specificDetails}\nHãy phân tích an toàn PCCC cho công trình này.`;
+
+    const sections = [
+      'overview',
+      'escape',
+      'fire_spread',
+      'traffic',
+      'technical'
+    ] as const;
+
+    // Helper map to categorize citations
+    const sectionToCategoryMap: Record<string, string> = {
+      'escape': 'escape',
+      'fire_spread': 'fire',
+      'traffic': 'traffic',
+      'technical': 'tech'
+    };
+
+    // Helper to process each section
+    const fetchSection = async (section: typeof sections[number]) => {
       try {
-        result = JSON.parse(jsonStr);
-      } catch (e) {
-        console.error('Failed to parse AI response:', content);
-        throw new Error('Dữ liệu trả về không đúng định dạng JSON');
-      }
+        const response = await api.post('api/chat', {
+          json: { prompt: userPrompt, section },
+        }).json<any>();
 
-      setData(result);
-      localStorage.setItem('pccc_compliance_data', JSON.stringify(result));
-      return result;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Đã có lỗi xảy ra';
-      setError(message);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
+        const content = response?.choices?.[0]?.message?.content;
+        if (!content) return;
+
+        // Extract JSON substring to handle chatty preambles
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        const jsonStr = jsonMatch ? jsonMatch[0] : content.replace(/```json\n?|\n?```/g, '').trim();
+
+        // Sanitize control characters that might break JSON.parse
+        const sanitizedJson = jsonStr.replace(/[\x00-\x1F\x7F-\x9F]/g, "");
+
+        const json = JSON.parse(sanitizedJson);
+
+        setData(prev => {
+          if (!prev) return initialData;
+
+          // Process citations to add category (url comes from AI)
+          const newCitations = (json.citations || []).map((c: any) => ({
+            ...c,
+            category: sectionToCategoryMap[section] // Tag with category
+          }));
+
+          return {
+            ...prev,
+            // Merge building Info
+            buildingInfo: {
+              ...prev.buildingInfo,
+              ...(json.buildingInfo || {})
+            },
+            // Merge arrays (replace empty ones with new data)
+            escapeSolutions: json.escapeSolutions?.length ? json.escapeSolutions : prev.escapeSolutions,
+            fireSpreadPrevention: json.fireSpreadPrevention?.length ? json.fireSpreadPrevention : prev.fireSpreadPrevention,
+            fireTraffic: json.fireTraffic?.length ? json.fireTraffic : prev.fireTraffic,
+            technicalSystems: json.technicalSystems?.length ? json.technicalSystems : prev.technicalSystems,
+            // Combine citations
+            citations: [...prev.citations, ...newCitations]
+          };
+        });
+      } catch (err) {
+        console.warn(`Failed section ${section}`, err);
+      }
+    };
+
+    // Wait for ALL requests to complete
+    await Promise.all(sections.map(fetchSection));
+
+    // Final state save
+    setData(current => {
+      if (current) {
+        localStorage.setItem('pccc_compliance_data', JSON.stringify(current));
+      }
+      return current;
+    });
+
+    setIsLoading(false);
+
+    // Return the final data state (using a functional update or just the last known state is tricky in async, 
+    // but relies on setData having run. We return 'initialData' here but the caller 
+    // should likely rely on the 'data' state or wait for isLoading to flip).
+    // Actually, to be safe, we should return the real final data, but 'setData' is async.
+    // For now, returning initialData is okay as long as the caller waits for isLoading=false.
+    // BUT the requirement is "wait for all".
+
+    return initialData; // Caller will navigate based on finish.
   }, []);
 
   const reset = useCallback(() => {

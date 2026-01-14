@@ -24,7 +24,9 @@ export const ComplianceResponseSchema = z.object({
   technicalSystems: z.array(z.string()),
   citations: z.array(z.object({
     source: z.string(),
-    text: z.string()
+    text: z.string(),
+    url: z.string().nullable().optional(),
+    category: z.string().optional() // Added for frontend categorization
   }))
 });
 

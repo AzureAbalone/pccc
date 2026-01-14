@@ -22,9 +22,9 @@ export function InputView({ onSubmit, isLoading = false, error }: InputViewProps
     "Toà nhà chung cư 25 tầng, diện tích sàn 1000m2 ở Hà Nội."
   )
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (description.trim()) {
-      onSubmit(description)
+      await onSubmit(description)
     }
   }
 
@@ -42,7 +42,7 @@ export function InputView({ onSubmit, isLoading = false, error }: InputViewProps
 
       {/* Error Message */}
       {error && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-200/50 text-red-700"
@@ -55,25 +55,25 @@ export function InputView({ onSubmit, isLoading = false, error }: InputViewProps
       {/* Input Card */}
       <Card className="p-1 animate-fade-in-up stagger-1 hover:shadow-lg">
         <div className="relative">
-          <Textarea 
+          <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="min-h-[200px] lg:min-h-[280px] border-0 resize-none text-base lg:text-lg leading-relaxed p-4 lg:p-6 focus:ring-0 bg-transparent placeholder:text-zinc-400"
             placeholder="Mô tả công trình của bạn..."
             disabled={isLoading}
           />
-          
+
           {/* Submit Button */}
           <div className="absolute bottom-4 right-4 lg:bottom-6 lg:right-6">
-            <Button 
-              size="icon" 
+            <Button
+              size="icon"
               onClick={handleSubmit}
               disabled={isLoading || !description.trim()}
               className="h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-200/60 transition-all hover:scale-105 hover:shadow-xl hover:shadow-orange-200/70 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               aria-label="Phân tích công trình"
             >
               {isLoading ? (
-                <motion.div 
+                <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                   className="w-5 h-5 lg:w-6 lg:h-6 border-2 border-white border-t-transparent rounded-full"
@@ -92,8 +92,8 @@ export function InputView({ onSubmit, isLoading = false, error }: InputViewProps
         {features.map((feature, i) => {
           const Icon = feature.icon
           return (
-            <motion.div 
-              key={i} 
+            <motion.div
+              key={i}
               className="flex items-center gap-3 p-3 lg:p-4 rounded-xl bg-white/60 backdrop-blur-sm border border-zinc-200/50 shadow-sm hover:shadow-md hover:border-zinc-300/50 transition-all cursor-pointer group min-w-[240px] md:min-w-0 snap-center"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
