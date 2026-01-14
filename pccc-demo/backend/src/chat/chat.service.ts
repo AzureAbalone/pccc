@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
-import { SYSTEM_PROMPT } from './system-prompt';
+import got from 'got';
+import { SYSTEM_PROMPT } from './system-prompt.js';
 
 @Injectable()
 export class ChatService {
@@ -15,34 +15,30 @@ export class ChatService {
         this.siteName = this.configService.get<string>('SITE_NAME') || 'PCCC Demo';
     }
 
-    async generateResponse(userPrompt: string): Promise<any> {
+    async generateResponse(userPrompt: string, systemPrompt: string = SYSTEM_PROMPT): Promise<any> {
         try {
-            const response = await axios.post(
-                'https://openrouter.ai/api/v1/chat/completions',
-                {
-                    model: this.configService.get<string>('MODEL_ID') || 'google/gemini-2.0-flash-exp:free',
+            const response = await got.post('https://openrouter.ai/api/v1/chat/completions', {
+                json: {
+                    model: this.configService.get<string>('MODEL_ID') || 'google/gemini-3-pro-preview',
                     messages: [
                         {
                             role: 'system',
-                            content: SYSTEM_PROMPT,
+                            content: systemPrompt,
                         },
                         {
                             role: 'user',
                             content: userPrompt,
-                        },
+                        }
                     ],
                 },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${this.openRouterApiKey}`,
-                        'HTTP-Referer': this.siteUrl,
-                        'X-Title': this.siteName,
-                        'Content-Type': 'application/json',
-                    },
+                headers: {
+                    'Authorization': `Bearer ${this.openRouterApiKey}`,
+                    'HTTP-Referer': this.siteUrl,
+                    'X-Title': this.siteName,
                 },
-            );
+            }).json();
 
-            return response.data;
+            return response;
         } catch (error) {
             console.error('Error calling OpenRouter API:', error);
             throw error;

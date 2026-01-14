@@ -1,4 +1,12 @@
 export const mockComplianceResponse = {
+  buildingInfo: {
+    floors: 25,
+    height: 85,
+    floorArea: 1000,
+    buildingType: "Chung cư",
+    fireClass: "Cấp 1",
+    hazardGroup: "F1.3"
+  },
   escapeSolutions: [
     "Bố trí tối thiểu 2 cầu thang thoát nạn theo QCVN 06:2022 cho tòa nhà cao trên 15m",
     "Khoảng cách từ điểm xa nhất đến lối thoát nạn không quá 25m đối với phòng giữa hai lối thoát",

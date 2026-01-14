@@ -2,8 +2,20 @@
 	"name": "@pccc/shared",
 	"version": "1.0.0",
 	"private": true,
-	"main": "./ZodSchemas.ts",
-	"types": "./ZodSchemas.ts",
+	"type": "module",
+	"main": "./dist/ZodSchemas.js",
+	"types": "./dist/ZodSchemas.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/ZodSchemas.d.ts",
+			"import": "./dist/ZodSchemas.js",
+			"default": "./dist/ZodSchemas.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch"
+	},
 	"dependencies": {
 		"zod": "^3.24.0"
 	}

@@ -5,12 +5,11 @@ import { InputView } from './components/features/InputView'
 import { ReportView } from './components/features/ReportView'
 import { ComplianceCheckView } from './components/features/ComplianceCheckView'
 import { RegulationsView } from './components/features/RegulationsView'
-import { useCompliance, type ComplianceResponse } from './hooks/useCompliance'
+import { useCompliance } from './hooks/useCompliance'
 
 function App() {
   const [currentView, setCurrentView] = useState('input')
-  const [reportData, setReportData] = useState<ComplianceResponse | null>(null)
-  const { analyze, isLoading, error, reset } = useCompliance()
+  const { data: reportData, analyze, isLoading, error, reset } = useCompliance()
 
   const handleNavigate = (view: string) => {
     setCurrentView(view)
@@ -19,14 +18,12 @@ function App() {
   const handleInputSubmit = async (description: string) => {
     const result = await analyze({ description })
     if (result) {
-      setReportData(result)
-      setCurrentView('report-escape')
+      setCurrentView('report') // Just 'report', tabs handled internally
     }
   }
 
   const handleNewAnalysis = () => {
     reset()
-    setReportData(null)
     setCurrentView('input')
   }
 
@@ -41,13 +38,14 @@ function App() {
       )
     }
 
-    if (currentView.startsWith('report')) {
+    // All report views handled by ReportView with internal tab state
+    if (currentView === 'report' || currentView.startsWith('report-')) {
       return (
         <ReportView 
-          activeTab={currentView} 
-          onTabChange={handleNavigate}
+          initialTab={currentView}
           data={reportData}
           onNewAnalysis={handleNewAnalysis}
+          onNavigateToInput={() => handleNavigate('input')}
         />
       )
     }

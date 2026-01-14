@@ -15,16 +15,8 @@ const navItems = [
 
 export function BottomNav({ currentView, onNavigate }: BottomNavProps) {
   const getIsActive = (id: string) => {
-    if (id === "report") return currentView.startsWith("report")
+    if (id === "report") return currentView === "report" || currentView.startsWith("report-")
     return currentView === id
-  }
-
-  const handleNavigate = (id: string) => {
-    if (id === "report") {
-      onNavigate("report-escape")
-    } else {
-      onNavigate(id)
-    }
   }
 
   return (
@@ -38,7 +30,7 @@ export function BottomNav({ currentView, onNavigate }: BottomNavProps) {
             return (
               <button
                 key={item.id}
-                onClick={() => handleNavigate(item.id)}
+                onClick={() => onNavigate(item.id)}
                 className={cn(
                   "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all cursor-pointer min-w-[60px]",
                   isActive 

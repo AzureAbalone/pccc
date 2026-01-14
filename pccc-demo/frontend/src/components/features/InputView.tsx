@@ -87,26 +87,27 @@ export function InputView({ onSubmit, isLoading = false, error }: InputViewProps
       </Card>
 
       {/* Features Grid - Responsive */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4">
+      {/* Features Grid - Responsive */}
+      <div className="flex overflow-x-auto pb-4 gap-3 md:grid md:grid-cols-3 md:pb-0 lg:gap-4 snap-x snap-mandatory hide-scrollbar">
         {features.map((feature, i) => {
           const Icon = feature.icon
           return (
             <motion.div 
               key={i} 
-              className="flex items-center gap-3 p-4 rounded-xl bg-white/60 backdrop-blur-sm border border-zinc-200/50 shadow-sm hover:shadow-md hover:border-zinc-300/50 transition-all cursor-pointer group"
+              className="flex items-center gap-3 p-3 lg:p-4 rounded-xl bg-white/60 backdrop-blur-sm border border-zinc-200/50 shadow-sm hover:shadow-md hover:border-zinc-300/50 transition-all cursor-pointer group min-w-[240px] md:min-w-0 snap-center"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + i * 0.1 }}
               whileHover={{ y: -2 }}
             >
               <div className={cn(
-                "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all",
+                "w-8 h-8 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center shrink-0 transition-all",
                 "bg-zinc-100 group-hover:bg-zinc-50",
                 feature.color
               )}>
-                <Icon size={18} />
+                <Icon size={16} className="lg:w-[18px] lg:h-[18px]" />
               </div>
-              <span className="text-sm text-zinc-600 font-medium group-hover:text-zinc-800">{feature.text}</span>
+              <span className="text-xs lg:text-sm text-zinc-600 font-medium group-hover:text-zinc-800 whitespace-nowrap md:whitespace-normal">{feature.text}</span>
             </motion.div>
           )
         })}

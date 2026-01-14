@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { Sidebar } from "./Sidebar"
 import { MobileHeader } from "./MobileHeader"
 import { BottomNav } from "./BottomNav"
@@ -11,11 +10,6 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children, currentView, onNavigate }: AppLayoutProps) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen)
-  const closeMobileMenu = () => setIsMobileMenuOpen(false)
-
   return (
     <div className="min-h-screen text-zinc-900 noise-overlay relative">
       {/* Decorative Orbs - Soft Visual Effects */}
@@ -26,17 +20,12 @@ export function AppLayout({ children, currentView, onNavigate }: AppLayoutProps)
       </div>
 
       {/* Mobile Header */}
-      <MobileHeader 
-        isMenuOpen={isMobileMenuOpen} 
-        onToggleMenu={toggleMobileMenu} 
-      />
+      <MobileHeader />
 
-      {/* Sidebar (Desktop fixed, Mobile drawer) */}
+      {/* Sidebar (Desktop only) */}
       <Sidebar 
         currentView={currentView} 
         onNavigate={onNavigate}
-        isMobileOpen={isMobileMenuOpen}
-        onCloseMobile={closeMobileMenu}
       />
       
       {/* Main Content */}

@@ -1,69 +1,62 @@
-import { Injectable } from '@nestjs/common';
-import type { ComplianceRequest, ComplianceResponse } from '@pccc/shared';
+import { Injectable, Logger } from '@nestjs/common';
+import { ComplianceRequest, ComplianceResponse, ComplianceResponseSchema } from '@pccc/shared';
+import { ChatService } from '../chat/chat.service.js';
 
 @Injectable()
 export class ComplianceService {
+  private readonly logger = new Logger(ComplianceService.name);
+
+  constructor(private readonly chatService: ChatService) { }
+
   /**
    * Analyze building description and return fire safety compliance recommendations.
-   * Currently returns mock data - will integrate with AI service later.
+   * Uses AI to analyze the specific project details.
    */
   async analyze(request: ComplianceRequest): Promise<ComplianceResponse> {
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    this.logger.log(`Analyzing compliance for project: ${request.description.substring(0, 50)}...`);
 
-    // Mock response based on building type
-    const isHighRise = (request.height && request.height > 25) || (request.floors && request.floors > 8);
-    
-    return {
-      escapeSolutions: [
-        'Bố trí tối thiểu 2 lối thoát nạn cho mỗi tầng',
-        'Chiều rộng cửa thoát nạn tối thiểu 1.2m',
-        'Khoảng cách từ điểm xa nhất đến lối thoát nạn không quá 40m',
-        ...(isHighRise ? [
-          'Cầu thang thoát nạn phải có buồng đệm ngăn khói',
-          'Lắp đặt thang máy chữa cháy cho tòa nhà cao tầng'
-        ] : [])
-      ],
-      fireSpreadPrevention: [
-        'Tường ngăn cháy có giới hạn chịu lửa REI 120',
-        'Cửa ngăn cháy có giới hạn chịu lửa EI 60',
-        'Khoảng cách an toàn PCCC giữa các công trình tối thiểu 6m',
-        'Sử dụng vật liệu không cháy hoặc khó cháy cho kết cấu chịu lực'
-      ],
-      fireTraffic: [
-        'Đường giao thông cho xe chữa cháy rộng tối thiểu 3.5m',
-        'Bãi đỗ xe chữa cháy có kích thước tối thiểu 15m x 15m',
-        'Khoảng cách từ bãi đỗ đến công trình không quá 10m',
-        'Độ dốc đường không quá 10%'
-      ],
-      technicalSystems: [
-        'Hệ thống báo cháy tự động theo TCVN 5738:2021',
-        'Hệ thống chữa cháy tự động sprinkler',
-        'Họng nước chữa cháy trong nhà mỗi tầng',
-        'Hệ thống hút khói hành lang và cầu thang',
-        ...(isHighRise ? [
-          'Máy phát điện dự phòng cho hệ thống PCCC',
-          'Trung tâm điều khiển PCCC tập trung'
-        ] : [])
-      ],
-      citations: [
-        {
-          source: 'QCVN 06:2022/BXD',
-          text: 'Quy chuẩn kỹ thuật quốc gia về An toàn cháy cho nhà và công trình'
-        },
-        {
-          source: 'TCVN 5738:2021',
-          text: 'Hệ thống báo cháy - Yêu cầu kỹ thuật'
-        },
-        {
-          source: 'TCVN 7336:2021',
-          text: 'Phòng cháy chữa cháy - Hệ thống sprinkler tự động'
-        },
-        {
-          source: 'Nghị định 136/2020/NĐ-CP',
-          text: 'Quy định chi tiết một số điều và biện pháp thi hành Luật Phòng cháy và chữa cháy'
-        }
-      ]
-    };
+    // 1. Construct the prompt with all available details
+    let userPrompt = `Mô tả công trình:\n${request.description}\n`;
+
+    if (request.type) userPrompt += `- Loại công trình: ${request.type}\n`;
+    if (request.height) userPrompt += `- Chiều cao: ${request.height}m\n`;
+    if (request.floors) userPrompt += `- Số tầng: ${request.floors}\n`;
+
+    userPrompt += `\n[YÊU CẦU: Phân tích tuân thủ]\nHãy phân tích an toàn PCCC cho công trình này và trả về kết quả JSON theo đúng cấu trúc đã định nghĩa.`;
+
+    try {
+      // 2. Call AI Service
+      const aiResponse = await this.chatService.generateResponse(userPrompt);
+
+      // 3. Extract content from AI response
+      // OpenRouter response structure: { choices: [{ message: { content: "..." } }] }
+      const content = aiResponse?.choices?.[0]?.message?.content;
+
+      if (!content) {
+        throw new Error('Empty response from AI service');
+      }
+
+      // 4. Parse JSON (handle potential markdown code blocks)
+      const jsonStr = content.replace(/```json\n?|\n?```/g, '').trim();
+      let parsedData;
+
+      try {
+        parsedData = JSON.parse(jsonStr);
+      } catch (e) {
+        this.logger.error('Failed to parse AI JSON response', e);
+        this.logger.debug('Raw AI content:', content);
+        throw new Error('AI returned invalid JSON format');
+      }
+
+      // 5. Validate against schema
+      const result = ComplianceResponseSchema.parse(parsedData);
+
+      return result;
+
+    } catch (error) {
+      this.logger.error('Error in compliance analysis', error);
+      // Fallback or re-throw depending on requirements. For now, re-throw to let frontend handle it.
+      throw error;
+    }
   }
 }

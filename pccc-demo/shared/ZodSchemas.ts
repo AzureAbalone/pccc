@@ -10,6 +10,14 @@ export const ComplianceRequestSchema = z.object({
 export type ComplianceRequest = z.infer<typeof ComplianceRequestSchema>;
 
 export const ComplianceResponseSchema = z.object({
+  buildingInfo: z.object({
+    floors: z.number().nullable(),
+    height: z.number().nullable(),
+    floorArea: z.number().nullable(),
+    buildingType: z.string().nullable(),
+    fireClass: z.string().nullable(),
+    hazardGroup: z.string().nullable(),
+  }),
   escapeSolutions: z.array(z.string()),
   fireSpreadPrevention: z.array(z.string()),
   fireTraffic: z.array(z.string()),
