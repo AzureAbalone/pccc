@@ -2,7 +2,7 @@ import { CheckCircle2, FileText } from "lucide-react"
 import { motion } from "framer-motion"
 
 interface CitationListProps {
-  citations: { source: string; text: string }[]
+  citations: { source: string; text: string; link?: string }[]
 }
 
 export function CitationList({ citations }: CitationListProps) {
@@ -22,7 +22,10 @@ export function CitationList({ citations }: CitationListProps) {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.08 }}
-            className="flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-orange-50/50 to-amber-50/30 border border-orange-200/40 hover:border-orange-300/50 hover:shadow-sm transition-all cursor-pointer group"
+            onClick={() => citation.link && window.open(citation.link, '_blank')}
+            className={`flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-orange-50/50 to-amber-50/30 border border-orange-200/40 transition-all group ${
+              citation.link ? 'cursor-pointer hover:border-orange-300/50 hover:shadow-sm' : ''
+            }`}
           >
             <CheckCircle2 size={18} className="text-emerald-500 mt-0.5 shrink-0 group-hover:scale-110 transition-transform" />
             <div className="space-y-1.5 min-w-0">

@@ -17,7 +17,7 @@ Bạn có hai chế độ hoạt động chính, hãy tự động nhận diện
    - Nhiệm vụ: Phân tích và trả về kết quả dưới dạng JSON hợp lệ.
 
 ## TIÊU CHUẨN THAM CHIẾU (Sử dụng kiến thức cập nhật)
-Bạn hãy sử dụng kiến thức và khả năng tìm kiếm nội bộ của mình để tham chiếu chính xác các nội dung từ các văn bản pháp luật hiện hành sau (lưu ý tìm phiên bản mới nhất nếu có):
+Bạn hãy sử dụng kiến thức và khả năng tìm kiếm nội bộ của mình để tham chiếu chính xác các nội dung và TÌM KIẾM LIÊN KẾT (URL) đến các văn bản pháp luật hiện hành sau (lưu ý tìm phiên bản mới nhất nếu có):
 - **QCVN 06:2022/BXD**: Quy chuẩn kỹ thuật quốc gia về An toàn cháy cho nhà và công trình.
 - **TCVN 5738:2021**: Hệ thống báo cháy tự động - Yêu cầu kỹ thuật.
 - **TCVN 7336:2021**: Hệ thống chữa cháy tự động sprinkler.
@@ -38,21 +38,27 @@ KHI VÀ CHỈ KHI thực hiện "Phân tích tuân thủ", bạn PHẢI trả v�
     "hazardGroup": "string | null"
   },
   "escapeSolutions": [
-    "5-8 giải pháp thoát nạn cụ thể, có số liệu. Ví dụ: 'Chiều rộng cửa thoát nạn tối thiểu 1.2m'"
+    {
+      "content": "Giải pháp cụ thể. Ví dụ: 'Chiều rộng cửa thoát nạn tối thiểu 1.2m'",
+      "references": [
+         { "source": "QCVN 06:2022/BXD", "text": "Điều 3.2.1", "link": "..." }
+      ]
+    }
   ],
   "fireSpreadPrevention": [
-    "5-8 biện pháp ngăn cháy lan. Ví dụ: 'Tường ngăn cháy giới hạn chịu lửa REI 120'"
+    { "content": "...", "references": [...] }
   ],
   "fireTraffic": [
-    "5-8 yêu cầu giao thông. Ví dụ: 'Đường cho xe chữa cháy rộng tối thiểu 3.5m'"
+    { "content": "...", "references": [...] }
   ],
   "technicalSystems": [
-    "5-8 hệ thống kỹ thuật. Ví dụ: 'Hệ thống báo cháy địa chỉ theo TCVN 5738:2021'"
+    { "content": "...", "references": [...] }
   ],
   "citations": [
     {
       "source": "Mã tiêu chuẩn (VD: QCVN 06:2022/BXD)",
-      "text": "Trích dẫn tóm tắt nội dung điều khoản áp dụng"
+      "text": "Trích dẫn tóm tắt nội dung điều khoản áp dụng",
+      "link": "https://thuvienphapluat.vn/... (Link đến văn bản nếu có)"
     }
   ]
 }
@@ -63,9 +69,31 @@ KHI VÀ CHỈ KHI thực hiện "Phân tích tuân thủ", bạn PHẢI trả v�
 3. **Ngữ cảnh công trình:**
    - Nếu là **Nhà cao tầng (>25m hoặc >8 tầng)**: Bắt buộc yêu cầu thang máy chữa cháy, buồng đệm, hệ thống hút khói, cấp nước chữa cháy vách tường.
    - Chú ý phân loại công trình (F1.2 - Chung cư, F1.3 - Căn hộ, v.v.) để áp dụng đúng bảng tiêu chuẩn.
-4. **Trích dẫn:** Đảm bảo các trích dẫn trong phần \`citations\` là chính xác và có liên quan trực tiếp đến các giải pháp đã đề xuất.`;
+4. **Trích dẫn & Liên kết:** 
+   - Moi giải pháp ("content") phải đi kèm với ít nhất một "references".
+   - Đảm bảo các trích dẫn là chính xác. BẮT BUỘC nỗ lực tìm kiếm và cung cấp URL (link) đến văn bản gốc (ưu tiên thuvienphapluat.vn, chinhphu.vn...) để người dùng tiện tra cứu.`;
 
 // JSON Schema for OpenRouter structured output (if supported)
+const SolutionItemSchema = {
+  type: 'object',
+  properties: {
+    content: { type: 'string', description: 'Nội dung giải pháp cụ thể' },
+    references: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          source: { type: 'string' },
+          text: { type: 'string' },
+          link: { type: 'string' }
+        },
+        required: ['source', 'text']
+      }
+    }
+  },
+  required: ['content']
+};
+
 export const COMPLIANCE_RESPONSE_SCHEMA = {
   type: 'object',
   properties: {
@@ -84,22 +112,22 @@ export const COMPLIANCE_RESPONSE_SCHEMA = {
     },
     escapeSolutions: {
       type: 'array',
-      items: { type: 'string' },
+      items: SolutionItemSchema,
       description: 'Giải pháp thoát nạn (5-8 mục)',
     },
     fireSpreadPrevention: {
       type: 'array',
-      items: { type: 'string' },
+      items: SolutionItemSchema,
       description: 'Biện pháp ngăn cháy lan (5-8 mục)',
     },
     fireTraffic: {
       type: 'array',
-      items: { type: 'string' },
+      items: SolutionItemSchema,
       description: 'Yêu cầu giao thông chữa cháy (5-8 mục)',
     },
     technicalSystems: {
       type: 'array',
-      items: { type: 'string' },
+      items: SolutionItemSchema,
       description: 'Hệ thống kỹ thuật PCCC (5-8 mục)',
     },
     citations: {
@@ -109,10 +137,11 @@ export const COMPLIANCE_RESPONSE_SCHEMA = {
         properties: {
           source: { type: 'string' },
           text: { type: 'string' },
+          link: { type: 'string', description: 'URL đến văn bản pháp luật' },
         },
         required: ['source', 'text'],
       },
-      description: 'Trích dẫn tiêu chuẩn (4-6 mục)',
+      description: 'Trích dẫn tiêu chuẩn tổng quan (4-6 mục)',
     },
   },
   required: [

@@ -18,13 +18,42 @@ export const ComplianceResponseSchema = z.object({
     fireClass: z.string().nullable(),
     hazardGroup: z.string().nullable(),
   }),
-  escapeSolutions: z.array(z.string()),
-  fireSpreadPrevention: z.array(z.string()),
-  fireTraffic: z.array(z.string()),
-  technicalSystems: z.array(z.string()),
+  escapeSolutions: z.array(z.object({
+    content: z.string(),
+    references: z.array(z.object({
+      source: z.string(),
+      text: z.string(),
+      link: z.string().optional()
+    })).optional()
+  })),
+  fireSpreadPrevention: z.array(z.object({
+    content: z.string(),
+    references: z.array(z.object({
+      source: z.string(),
+      text: z.string(),
+      link: z.string().optional()
+    })).optional()
+  })),
+  fireTraffic: z.array(z.object({
+    content: z.string(),
+    references: z.array(z.object({
+      source: z.string(),
+      text: z.string(),
+      link: z.string().optional()
+    })).optional()
+  })),
+  technicalSystems: z.array(z.object({
+    content: z.string(),
+    references: z.array(z.object({
+      source: z.string(),
+      text: z.string(),
+      link: z.string().optional()
+    })).optional()
+  })),
   citations: z.array(z.object({
-    source: z.string(),
-    text: z.string()
+    source: z.string(), // e.g., "QCVN 06:2022/BXD"
+    text: z.string(),   // e.g., "Table H.4"
+    link: z.string().optional()
   }))
 });
 

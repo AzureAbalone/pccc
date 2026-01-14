@@ -1,21 +1,13 @@
 import { useState } from "react"
-import { motion } from "framer-motion"
-import { Play, Sparkles, Search, FileCheck, AlertCircle } from "lucide-react"
-import { Button } from "../ui/Button"
+import { motion, AnimatePresence } from "framer-motion"
+import { Play, AlertCircle } from "lucide-react"
 import { Textarea } from "../ui/Textarea"
-import { Card } from "../ui/Card"
 
 interface InputViewProps {
   onSubmit: (description: string) => Promise<void>
   isLoading?: boolean
   error?: string | null
 }
-
-const features = [
-  { icon: Sparkles, text: "Tự động trích xuất thông số", color: "text-amber-500" },
-  { icon: Search, text: "Tra cứu TCVN/QCVN", color: "text-blue-500" },
-  { icon: FileCheck, text: "Đề xuất giải pháp tối ưu", color: "text-emerald-500" },
-]
 
 export function InputView({ onSubmit, isLoading = false, error }: InputViewProps) {
   const [description, setDescription] = useState(
@@ -29,13 +21,13 @@ export function InputView({ onSubmit, isLoading = false, error }: InputViewProps
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 lg:space-y-8">
+    <div className="max-w-3xl mx-auto space-y-8 lg:space-y-10 min-h-[calc(100vh-14rem)] flex flex-col justify-center">
       {/* Header */}
-      <div className="space-y-2 animate-fade-in-up">
-        <h1 className="font-heading text-2xl lg:text-3xl font-bold tracking-tight text-zinc-900">
+      <div className="space-y-4 animate-fade-in-up text-center">
+        <h1 className="font-heading text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">
           Mô tả Công trình
         </h1>
-        <p className="text-zinc-500 text-sm lg:text-base">
+        <p className="text-zinc-500 text-lg max-w-xl mx-auto">
           Nhập thông tin chi tiết về dự án để hệ thống phân tích và đề xuất giải pháp PCCC phù hợp.
         </p>
       </div>
@@ -52,70 +44,86 @@ export function InputView({ onSubmit, isLoading = false, error }: InputViewProps
         </motion.div>
       )}
 
-      {/* Input Card */}
-      <Card className="p-1 animate-fade-in-up stagger-1 hover:shadow-lg">
-        <div className="relative">
-          <Textarea 
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="min-h-[200px] lg:min-h-[280px] border-0 resize-none text-base lg:text-lg leading-relaxed p-4 lg:p-6 focus:ring-0 bg-transparent placeholder:text-zinc-400"
-            placeholder="Mô tả công trình của bạn..."
-            disabled={isLoading}
-          />
-          
-          {/* Submit Button */}
-          <div className="absolute bottom-4 right-4 lg:bottom-6 lg:right-6">
-            <Button 
-              size="icon" 
-              onClick={handleSubmit}
-              disabled={isLoading || !description.trim()}
-              className="h-12 w-12 lg:h-14 lg:w-14 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-200/60 transition-all hover:scale-105 hover:shadow-xl hover:shadow-orange-200/70 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-              aria-label="Phân tích công trình"
-            >
-              {isLoading ? (
-                <motion.div 
+      {/* Input Area - Clean / No Box */}
+      <div className="relative animate-fade-in-up stagger-1 group">
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-sm rounded-3xl -z-10 transition-colors group-hover:bg-white/60" />
+        <Textarea 
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="min-h-[200px] lg:min-h-[280px] w-full border-0 resize-none text-lg lg:text-xl leading-relaxed p-6 lg:p-8 focus:ring-0 bg-transparent placeholder:text-zinc-300 text-zinc-800"
+          placeholder="Mô tả công trình của bạn..."
+          disabled={isLoading}
+        />
+        
+      {/* Submit Button - Morphing */}
+      <div className="absolute bottom-6 right-6 lg:bottom-8 lg:right-8">
+        <motion.button
+          onClick={handleSubmit}
+          disabled={isLoading || !description.trim()}
+          initial="initial"
+          whileHover="hover"
+          whileTap="tap"
+          layout
+          className={`
+            relative h-16 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 text-white shadow-lg shadow-orange-500/30 
+            flex items-center justify-center overflow-hidden
+            disabled:opacity-50 disabled:cursor-not-allowed
+            min-w-[4rem]
+          `}
+        >
+          {/* Background and Shadow Pulse */}
+          {!isLoading && !description.trim() ? null : (
+             <motion.div 
+               className="absolute inset-0"
+               initial={{ opacity: 0 }}
+               whileHover={{ opacity: 1 }}
+             />
+          )}
+
+          <AnimatePresence mode="popLayout" initial={false}>
+            {isLoading ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                layout
+                className="px-4" // Fixed padding for loader
+              >
+                <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                  className="w-5 h-5 lg:w-6 lg:h-6 border-2 border-white border-t-transparent rounded-full"
+                  className="w-7 h-7 border-[3px] border-white/90 border-t-transparent rounded-full"
                 />
-              ) : (
-                <Play className="ml-0.5 fill-white" size={20} />
-              )}
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      {/* Features Grid - Responsive */}
-      {/* Features Grid - Responsive */}
-      <div className="flex overflow-x-auto pb-4 gap-3 md:grid md:grid-cols-3 md:pb-0 lg:gap-4 snap-x snap-mandatory hide-scrollbar">
-        {features.map((feature, i) => {
-          const Icon = feature.icon
-          return (
-            <motion.div 
-              key={i} 
-              className="flex items-center gap-3 p-3 lg:p-4 rounded-xl bg-white/60 backdrop-blur-sm border border-zinc-200/50 shadow-sm hover:shadow-md hover:border-zinc-300/50 transition-all cursor-pointer group min-w-[240px] md:min-w-0 snap-center"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.1 }}
-              whileHover={{ y: -2 }}
-            >
-              <div className={cn(
-                "w-8 h-8 lg:w-10 lg:h-10 rounded-xl flex items-center justify-center shrink-0 transition-all",
-                "bg-zinc-100 group-hover:bg-zinc-50",
-                feature.color
-              )}>
-                <Icon size={16} className="lg:w-[18px] lg:h-[18px]" />
-              </div>
-              <span className="text-xs lg:text-sm text-zinc-600 font-medium group-hover:text-zinc-800 whitespace-nowrap md:whitespace-normal">{feature.text}</span>
-            </motion.div>
-          )
-        })}
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="idle"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                layout 
+                className="flex items-center px-5 h-full"
+              >
+                <Play className="fill-white w-7 h-7" strokeWidth={0} />
+                <motion.span
+                  style={{ width: 0, opacity: 0, marginLeft: 0 }}
+                  variants={{
+                    initial: { width: 0, opacity: 0, marginLeft: 0 },
+                    hover: { width: "auto", opacity: 1, marginLeft: 8 },
+                  }}
+                  className="font-heading font-bold text-lg whitespace-nowrap overflow-hidden"
+                >
+                  Gửi
+                </motion.span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.button>
+      </div>
       </div>
     </div>
   )
 }
 
-function cn(...classes: (string | undefined | false)[]) {
-  return classes.filter(Boolean).join(' ')
-}
+

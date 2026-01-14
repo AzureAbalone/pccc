@@ -7,7 +7,13 @@ import {
   Download,
   Share2,
   RefreshCw,
-  FileText
+  FileText,
+  Layers,
+  ArrowUpFromLine,
+  Maximize2,
+  Building2,
+  ShieldCheck,
+  AlertTriangle
 } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/Tabs"
 import { Button } from "../ui/Button"
@@ -30,6 +36,10 @@ export function ReportView({
 }: ReportViewProps) {
   // Internal tab state - only updates this component, not the entire app
   const [activeTab, setActiveTab] = useState(() => {
+    // If it's just the generic report view, default to escape
+    if (initialTab === 'report' || !initialTab) {
+      return 'escape'
+    }
     // Extract tab value from initialTab if it's in format "report-xxx"
     if (initialTab.includes('-')) {
       return initialTab.split('-')[1] || 'escape'
@@ -42,7 +52,7 @@ export function ReportView({
   
   if (!complianceData) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8 space-y-6 animate-fade-in-up">
+      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-12rem)] text-center p-8 space-y-6 animate-fade-in-up">
         <div className="w-20 h-20 bg-zinc-50 rounded-2xl flex items-center justify-center border border-zinc-100 shadow-sm">
           <FileText className="w-10 h-10 text-zinc-300" />
         </div>
@@ -73,35 +83,46 @@ export function ReportView({
   }
 
   const dynamicStats = [
-    { label: "Số tầng", value: info.floors ?? "--", unit: "tầng" },
-    { label: "Chiều cao", value: info.height ?? "--", unit: "mét" },
-    { label: "Diện tích sàn", value: info.floorArea ? info.floorArea.toLocaleString() : "--", unit: "m²" },
-    { label: "Loại CT", value: info.buildingType ?? "---", unit: "" },
-    { label: "Cấp PCCC", value: info.fireClass ?? "---", unit: "" },
-    { label: "Nhóm nguy hiểm", value: info.hazardGroup ?? "---", unit: "" },
+    { label: "Số tầng", value: info.floors ?? "--", unit: "tầng", icon: Layers },
+    { label: "Chiều cao", value: info.height ?? "--", unit: "m", icon: ArrowUpFromLine },
+    { label: "Diện tích", value: info.floorArea ? info.floorArea.toLocaleString() : "--", unit: "m²", icon: Maximize2 },
+    { label: "Loại CT", value: info.buildingType ?? "---", unit: "", icon: Building2 },
+    { label: "Cấp PCCC", value: info.fireClass ?? "---", unit: "", icon: ShieldCheck },
+    { label: "Nhóm nguy hiểm", value: info.hazardGroup ?? "---", unit: "", icon: AlertTriangle },
   ]
 
   return (
     <div className="space-y-6 lg:space-y-8 pb-8">
-      {/* Stats Header - Responsive Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
-        {dynamicStats.map((stat, i) => (
-          <div 
-            key={i} 
-            className="bg-white/70 backdrop-blur-sm border border-zinc-200/60 rounded-xl p-3 lg:p-4 text-center shadow-sm hover:shadow-md transition-all animate-fade-in-up cursor-default group"
-            style={{ animationDelay: `${i * 50}ms` }}
-          >
-            <div className="text-[10px] lg:text-xs text-zinc-400 uppercase tracking-wider mb-1 font-semibold group-hover:text-orange-500 transition-colors">
-              {stat.label}
+      {/* Stats Header - Unified Panel Design with Watermark Icons */}
+      <div className="bg-white/90 backdrop-blur-xl rounded-2xl border border-zinc-200/50 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] overflow-hidden animate-fade-in-up">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y divide-zinc-100 sm:divide-y-0 sm:divide-x sm:divide-zinc-100">
+          {dynamicStats.map((stat, i) => (
+            <div 
+              key={i} 
+              className="relative p-4 lg:p-5 h-24 lg:h-28 flex flex-col justify-center overflow-hidden group hover:bg-zinc-50/50 transition-colors"
+              style={{ animationDelay: `${i * 50}ms` }}
+            >
+              {/* Watermark Icon */}
+              <stat.icon 
+                strokeWidth={1.5}
+                className="absolute -right-3 -bottom-3 w-16 h-16 text-orange-500/10 group-hover:text-orange-500/20 transition-colors duration-500 -rotate-12" 
+              />
+              
+              {/* Content */}
+              <div className="relative z-10 flex flex-col items-start gap-1">
+                <div className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 group-hover:text-amber-600/70 transition-colors">
+                  {stat.label}
+                </div>
+                <div className="font-heading font-bold text-zinc-900 text-sm lg:text-base leading-tight line-clamp-2 w-full pr-2">
+                  {stat.value}
+                  {stat.unit && (
+                    <span className="text-[10px] text-zinc-400 font-medium ml-1 relative -top-0.5">{stat.unit}</span>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="font-heading font-bold text-zinc-800 text-sm lg:text-base">
-              <span className="font-mono text-orange-600">{stat.value}</span>
-              {stat.unit && (
-                <span className="text-[10px] lg:text-xs text-zinc-400 font-normal ml-1">{stat.unit}</span>
-              )}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Header with Actions - Responsive */}
