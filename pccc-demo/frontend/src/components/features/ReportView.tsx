@@ -90,6 +90,18 @@ export function ReportView({
     { label: "Cấp PCCC", value: info.fireClass ?? "---", unit: "", icon: ShieldCheck },
     { label: "Nhóm nguy hiểm", value: info.hazardGroup ?? "---", unit: "", icon: AlertTriangle },
   ]
+  // Helper to extract unique references from items
+  const getUniqueReferences = (items: any[]) => {
+    if (!items) return []
+    const references = items.flatMap(item => item.references || [])
+    const uniqueRefs = Array.from(new Map(references.map(ref => [ref.source, ref])).values())
+    return uniqueRefs.map(ref => ({
+      source: ref.source,
+      text: ref.text,
+      url: ref.url,
+      category: activeTab
+    }))
+  }
 
   return (
     <div className="space-y-6 lg:space-y-8 pb-8">
@@ -170,6 +182,10 @@ export function ReportView({
               items={complianceData.escapeSolutions}
               icon={<DoorOpen size={24} className="text-emerald-500" />}
             />
+            <CitationList 
+              activeTab="escape"
+              citations={getUniqueReferences(complianceData.escapeSolutions)} 
+            />
           </TabsContent>
 
           <TabsContent value="fire">
@@ -177,6 +193,10 @@ export function ReportView({
               title="Ngăn cháy lan"
               items={complianceData.fireSpreadPrevention}
               icon={<Flame size={24} className="text-orange-500" />}
+            />
+            <CitationList 
+              activeTab="fire"
+              citations={getUniqueReferences(complianceData.fireSpreadPrevention)} 
             />
           </TabsContent>
 
@@ -186,6 +206,10 @@ export function ReportView({
               items={complianceData.fireTraffic}
               icon={<Truck size={24} className="text-blue-500" />}
             />
+            <CitationList 
+              activeTab="traffic"
+              citations={getUniqueReferences(complianceData.fireTraffic)} 
+            />
           </TabsContent>
 
           <TabsContent value="tech">
@@ -194,11 +218,13 @@ export function ReportView({
               items={complianceData.technicalSystems}
               icon={<Wrench size={24} className="text-purple-500" />}
             />
+            <CitationList 
+              activeTab="tech"
+              citations={getUniqueReferences(complianceData.technicalSystems)} 
+            />
           </TabsContent>
         </div>
       </Tabs>
-
-      <CitationList citations={complianceData.citations} activeTab={activeTab} />
     </div>
   )
 }

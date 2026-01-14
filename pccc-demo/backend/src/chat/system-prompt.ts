@@ -22,7 +22,7 @@ NHIỆM VỤ: Phân tích thông tin tổng quan công trình và trả về JSO
     "floorArea": number | null,
     "buildingType": "string | null (VD: F1.2 Chung cư)",
     "fireClass": "string | null (VD: Bậc I)",
-    "hazardGroup": "string | null (VD: Nhóm nguy hiểm cháy trung bình Nhóm II)"
+    "hazardGroup": "string | null (VD: Cháy trung bình Nhóm II)"
   }
 }
 Quy tắc: Tự suy luận buildingType, fireClass, hazardGroup từ mô tả nếu không có.`;
@@ -32,13 +32,18 @@ export const SYSTEM_PROMPT_ESCAPE = `${BASE_INSTRUCTION}
 NHIỆM VỤ: Đề xuất giải pháp THOÁT NẠN và Căn cứ pháp lý. Trả về JSON duy nhất:
 {
   "escapeSolutions": [
-    "5-8 giải pháp cụ thể (chiều rộng cửa, thang, khoảng cách...)"
+    {
+      "content": "Mô tả giải pháp cụ thể (chiều rộng cửa, thang, khoảng cách...)",
+      "references": [
+        { "source": "QCVN 06:2022/BXD", "text": "Điều khoản...", "url": "Link..." }
+      ]
+    }
   ],
   "citations": [
     { 
       "source": "Mã QCVN/TCVN", 
       "text": "Trích dẫn nội dung điều khoản áp dụng cho thoát nạn",
-      "url": "Đường dẫn URL trực tiếp đến văn bản pháp luật (ưu tiên thuvienphapluat.vn, chinhphu.vn) để người dùng tra cứu"
+      "url": "Đường dẫn URL trực tiếp đến văn bản pháp luật (ưu tiên thuvienphapluat.vn, chinhphu.vn)"
     }
   ]
 }
@@ -49,13 +54,18 @@ export const SYSTEM_PROMPT_FIRE_SPREAD = `${BASE_INSTRUCTION}
 NHIỆM VỤ: Đề xuất giải pháp NGĂN CHÁY LAN và Căn cứ pháp lý. Trả về JSON duy nhất:
 {
   "fireSpreadPrevention": [
-    "5-8 giải pháp (tường ngăn cháy, cửa chống cháy, khoang cháy...)"
+    {
+      "content": "Mô tả giải pháp (tường, cửa chống cháy...)",
+      "references": [
+        { "source": "QCVN 06:2022", "text": "Điều...", "url": "Link..." }
+      ]
+    }
   ],
   "citations": [
     { 
       "source": "Mã QCVN/TCVN", 
       "text": "Trích dẫn nội dung điều khoản áp dụng cho ngăn cháy",
-      "url": "Đường dẫn URL trực tiếp đến văn bản pháp luật (ưu tiên thuvienphapluat.vn, chinhphu.vn) để người dùng tra cứu"
+      "url": "Đường dẫn URL trực tiếp đến văn bản pháp luật (ưu tiên thuvienphapluat.vn, chinhphu.vn)"
     }
   ]
 }
@@ -66,13 +76,18 @@ export const SYSTEM_PROMPT_TRAFFIC = `${BASE_INSTRUCTION}
 NHIỆM VỤ: Đề xuất giải pháp GIAO THÔNG CHỮA CHÁY và Căn cứ pháp lý. Trả về JSON duy nhất:
 {
   "fireTraffic": [
-    "5-8 giải pháp (đường xe chữa cháy, bãi đỗ, cổng vào...)"
+    {
+      "content": "Mô tả giải pháp (đường xe, bãi đỗ...)",
+      "references": [
+        { "source": "QCVN 06:2022", "text": "Điều...", "url": "Link..." }
+      ]
+    }
   ],
   "citations": [
     { 
       "source": "Mã QCVN/TCVN", 
       "text": "Trích dẫn nội dung điều khoản áp dụng cho giao thông",
-      "url": "Đường dẫn URL trực tiếp đến văn bản pháp luật (ưu tiên thuvienphapluat.vn, chinhphu.vn) để người dùng tra cứu"
+      "url": "Đường dẫn URL trực tiếp đến văn bản pháp luật (ưu tiên thuvienphapluat.vn, chinhphu.vn)"
     }
   ]
 }
@@ -83,13 +98,18 @@ export const SYSTEM_PROMPT_TECHNICAL = `${BASE_INSTRUCTION}
 NHIỆM VỤ: Đề xuất HỆ THỐNG KỸ THUẬT PCCC và Căn cứ pháp lý. Trả về JSON duy nhất:
 {
   "technicalSystems": [
-    "5-8 hệ thống (báo cháy, chữa cháy, thông gió, chiếu sáng...)"
+    {
+      "content": "Mô tả hệ thống (báo cháy, chữa cháy...)",
+      "references": [
+        { "source": "TCVN 5738", "text": "Điều...", "url": "Link..." }
+      ]
+    }
   ],
   "citations": [
     { 
       "source": "Mã QCVN/TCVN", 
       "text": "Trích dẫn nội dung điều khoản áp dụng cho hệ thống kỹ thuật",
-      "url": "Đường dẫn URL trực tiếp đến văn bản pháp luật (ưu tiên thuvienphapluat.vn, chinhphu.vn) để người dùng tra cứu"
+      "url": "Đường dẫn URL trực tiếp đến văn bản pháp luật (ưu tiên thuvienphapluat.vn, chinhphu.vn)"
     }
   ]
 }
@@ -110,12 +130,12 @@ NHIỆM VỤ:
     "fireClass": "string | null",
     "hazardGroup": "string | null"
   },
-  "escapeSolutions": ["5-8 giải pháp..."],
-  "fireSpreadPrevention": ["5-8 giải pháp..."],
-  "fireTraffic": ["5-8 giải pháp..."],
-  "technicalSystems": ["5-8 giải pháp..."],
+  "escapeSolutions": [{ "content": "...", "references": [{ "source": "...", "text": "...", "url": "..." }] }],
+  "fireSpreadPrevention": [{ "content": "...", "references": [] }],
+  "fireTraffic": [{ "content": "...", "references": [] }],
+  "technicalSystems": [{ "content": "...", "references": [] }],
   "citations": [
-    { "source": "Mã TCVN", "text": "Nội dung" }
+    { "source": "Mã TCVN", "text": "Nội dung", "url": "..." }
   ]
 }
 QUY TẮC: Nếu là phân tích, output phải là valid JSON để máy có thể đọc.`;

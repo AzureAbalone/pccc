@@ -1,5 +1,5 @@
 import { ArrowUpRight, CheckCircle2, FileText } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 
 interface CitationListProps {
   citations: {
@@ -9,7 +9,6 @@ interface CitationListProps {
     category?: string
   }[];
   activeTab: string;
-  citations: { source: string; text: string; link?: string }[]
 }
 
 export function CitationList({ citations, activeTab }: CitationListProps) {
@@ -42,69 +41,42 @@ export function CitationList({ citations, activeTab }: CitationListProps) {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3">
-          <AnimatePresence mode="popLayout">
-            {filteredCitations.map((citation, index) => (
-              <motion.div
-                key={`${citation.source}-${index}`}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                transition={{ delay: index * 0.05 }}
-                className="flex flex-col sm:flex-row sm:items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-orange-50/50 to-amber-50/30 border border-orange-200/40 hover:border-orange-300/50 hover:shadow-sm transition-all group relative"
-              >
-                <CheckCircle2 size={18} className="text-emerald-500 mt-0.5 shrink-0 group-hover:scale-110 transition-transform hidden sm:block" />
-                <div className="space-y-2 min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <div className="text-[11px] font-mono font-semibold text-orange-700 px-2 py-1 rounded-md bg-orange-100/80 border border-orange-200/50 inline-block">
-                      {citation.source}
-                    </div>
+          {filteredCitations.map((citation, index) => (
+            <motion.div
+              key={`${citation.source}-${index}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              id={`citation-${citation.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`}
+              className="flex flex-col sm:flex-row sm:items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-orange-50/50 to-amber-50/30 border border-orange-200/40 hover:border-orange-300/50 hover:shadow-sm transition-all group relative scroll-mt-20"
+            >
+              <CheckCircle2 size={18} className="text-emerald-500 mt-0.5 shrink-0 group-hover:scale-110 transition-transform hidden sm:block" />
+              <div className="space-y-2 min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="text-[11px] font-mono font-semibold text-orange-700 px-2 py-1 rounded-md bg-orange-100/80 border border-orange-200/50 inline-block">
+                    {citation.source}
                   </div>
-                  <p className="text-sm text-zinc-600 leading-relaxed group-hover:text-zinc-800">
-                    {citation.text}
-                  </p>
                 </div>
+                <p className="text-sm text-zinc-600 leading-relaxed group-hover:text-zinc-800">
+                  {citation.text}
+                </p>
+              </div>
 
-                {citation.url && (
-                  <a
-                    href={citation.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200/50 rounded-lg transition-colors group/link mt-2 sm:mt-0 w-full sm:w-auto justify-center"
-                  >
-                    <span>Xem văn bản</span>
-                    <ArrowUpRight size={14} className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
-                  </a>
-                )}
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              {citation.url && (
+                <a
+                  href={citation.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200/50 rounded-lg transition-colors group/link mt-2 sm:mt-0 w-full sm:w-auto justify-center"
+                >
+                  <span>Xem văn bản</span>
+                  <ArrowUpRight size={14} className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                </a>
+              )}
+            </motion.div>
+          ))}
         </div>
       )}
-      
-      <div className="grid grid-cols-1 gap-3">
-        {citations.map((citation, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.08 }}
-            onClick={() => citation.link && window.open(citation.link, '_blank')}
-            className={`flex items-start gap-3 p-4 rounded-xl bg-gradient-to-r from-orange-50/50 to-amber-50/30 border border-orange-200/40 transition-all group ${
-              citation.link ? 'cursor-pointer hover:border-orange-300/50 hover:shadow-sm' : ''
-            }`}
-          >
-            <CheckCircle2 size={18} className="text-emerald-500 mt-0.5 shrink-0 group-hover:scale-110 transition-transform" />
-            <div className="space-y-1.5 min-w-0">
-              <div className="text-[11px] font-mono font-semibold text-orange-700 px-2 py-1 rounded-md bg-orange-100/80 border border-orange-200/50 inline-block">
-                {citation.source}
-              </div>
-              <p className="text-sm text-zinc-600 leading-relaxed group-hover:text-zinc-800">
-                {citation.text}
-              </p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
     </div>
   )
 }

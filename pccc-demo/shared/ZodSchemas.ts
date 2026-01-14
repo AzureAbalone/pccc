@@ -23,7 +23,7 @@ export const ComplianceResponseSchema = z.object({
     references: z.array(z.object({
       source: z.string(),
       text: z.string(),
-      link: z.string().optional()
+      url: z.string().optional()
     })).optional()
   })),
   fireSpreadPrevention: z.array(z.object({
@@ -31,7 +31,7 @@ export const ComplianceResponseSchema = z.object({
     references: z.array(z.object({
       source: z.string(),
       text: z.string(),
-      link: z.string().optional()
+      url: z.string().optional()
     })).optional()
   })),
   fireTraffic: z.array(z.object({
@@ -39,7 +39,7 @@ export const ComplianceResponseSchema = z.object({
     references: z.array(z.object({
       source: z.string(),
       text: z.string(),
-      link: z.string().optional()
+      url: z.string().optional()
     })).optional()
   })),
   technicalSystems: z.array(z.object({
@@ -47,7 +47,7 @@ export const ComplianceResponseSchema = z.object({
     references: z.array(z.object({
       source: z.string(),
       text: z.string(),
-      link: z.string().optional()
+      url: z.string().optional()
     })).optional()
   })),
   citations: z.array(z.object({

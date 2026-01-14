@@ -1,10 +1,10 @@
 import { motion } from "framer-motion"
-import { Check, ExternalLink, BookOpen } from "lucide-react"
+import { Check, ExternalLink } from "lucide-react"
 
 interface Reference {
   source: string
   text: string
-  link?: string
+  url?: string | null
 }
 
 interface ComplianceItem {
@@ -46,40 +46,40 @@ export function CategoryTab({ title, items, icon }: CategoryTabProps) {
             className="bg-white/70 backdrop-blur-sm border border-zinc-200/50 rounded-xl p-4 lg:p-5 hover:bg-white hover:shadow-md hover:border-zinc-300/60 transition-all cursor-pointer group"
           >
             <div className="flex flex-col gap-3">
-              <div className="flex gap-3 lg:gap-4">
+              <div className="flex gap-3 lg:gap-4 items-start">
                 <div className="w-6 h-6 rounded-full bg-emerald-50 border border-emerald-200/50 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-emerald-100 group-hover:border-emerald-300/50 transition-colors">
                   <Check size={14} className="text-emerald-600" />
                 </div>
-                <p className="text-sm lg:text-base text-zinc-700 leading-relaxed group-hover:text-zinc-900">{item.content}</p>
-              </div>
-
-              {/* Render References if available */}
-              {item.references && item.references.length > 0 && (
-                <div className="ml-9 lg:ml-10 flex flex-wrap gap-2 mt-1">
-                  {item.references.map((ref, idx) => (
-                    <div 
-                      key={idx}
-                      onClick={(e) => {
-                        if (ref.link) {
-                          e.stopPropagation()
-                          window.open(ref.link, '_blank')
-                        }
-                      }}
-                      className={`
-                        inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border transition-colors
-                        ${ref.link 
-                          ? 'bg-orange-50/80 text-orange-700 border-orange-200/60 hover:bg-orange-100 hover:border-orange-300 cursor-pointer' 
-                          : 'bg-zinc-100/80 text-zinc-600 border-zinc-200/60'
-                        }
-                      `}
-                    >
-                      <BookOpen size={10} className={ref.link ? "text-orange-500" : "text-zinc-400"} />
-                      <span>{ref.source}: {ref.text}</span>
-                      {ref.link && <ExternalLink size={10} className="ml-0.5 opacity-60" />}
+                <div className="flex-1 flex items-center justify-between gap-4">
+                  <p className="text-sm lg:text-base text-zinc-700 leading-relaxed group-hover:text-zinc-900 font-medium">
+                    {item.content}
+                  </p>
+                  
+                  {item.references && item.references.length > 0 && (
+                    <div className="shrink-0 flex flex-col sm:flex-row items-center gap-2">
+                       {item.references.map((ref, idx) => (
+                          <a
+                            key={idx}
+                            href={`#citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              const id = `citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
+                              const element = document.getElementById(id);
+                              if (element) {
+                                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                element.classList.add('ring-2', 'ring-orange-400', 'ring-offset-2');
+                                setTimeout(() => element.classList.remove('ring-2', 'ring-orange-400', 'ring-offset-2'), 2000);
+                              }
+                            }}
+                            className="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-mono font-semibold bg-orange-100/80 text-orange-700 border border-orange-200/50 hover:bg-orange-200 hover:text-orange-800 transition-colors no-underline cursor-pointer shadow-sm select-none whitespace-nowrap"
+                          >
+                            {ref.source}
+                          </a>
+                        ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </motion.div>
         ))}
