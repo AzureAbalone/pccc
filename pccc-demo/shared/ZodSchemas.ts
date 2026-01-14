@@ -51,9 +51,10 @@ export const ComplianceResponseSchema = z.object({
     })).optional()
   })),
   citations: z.array(z.object({
-    source: z.string(), // e.g., "QCVN 06:2022/BXD"
-    text: z.string(),   // e.g., "Table H.4"
-    link: z.string().optional()
+    source: z.string(),
+    text: z.string(),
+    url: z.string().nullable().optional(),
+    category: z.string().optional() // Added for frontend categorization
   }))
 });
 

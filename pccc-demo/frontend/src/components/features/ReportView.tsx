@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { 
-  DoorOpen, 
-  Flame, 
-  Truck, 
+import {
+  DoorOpen,
+  Flame,
+  Truck,
   Wrench,
   Download,
   Share2,
@@ -28,8 +28,8 @@ interface ReportViewProps {
   onNavigateToInput?: () => void
 }
 
-export function ReportView({ 
-  initialTab = "escape", 
+export function ReportView({
+  initialTab = "escape",
   data,
   onNewAnalysis,
   onNavigateToInput
@@ -49,7 +49,7 @@ export function ReportView({
 
   // Use API data if available. If not, show empty state.
   const complianceData = data
-  
+
   if (!complianceData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-12rem)] text-center p-8 space-y-6 animate-fade-in-up">
@@ -62,7 +62,7 @@ export function ReportView({
             Vui lòng cung cấp thông tin công trình để hệ thống phân tích và đề xuất giải pháp PCCC phù hợp.
           </p>
         </div>
-        <Button 
+        <Button
           onClick={onNavigateToInput}
           className="bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-200/50 hover:shadow-xl hover:scale-105 transition-all"
         >
@@ -71,7 +71,7 @@ export function ReportView({
       </div>
     )
   }
-  
+
   // Safely extract building info with defaults
   const info = complianceData.buildingInfo || {
     floors: null,
@@ -131,16 +131,16 @@ export function ReportView({
         <div className="flex gap-2">
           {onNewAnalysis && (
             <Button variant="outline" size="sm" className="gap-2 flex-1 sm:flex-initial" onClick={onNewAnalysis}>
-              <RefreshCw size={14} /> 
+              <RefreshCw size={14} />
               <span className="hidden sm:inline">Phân tích mới</span>
             </Button>
           )}
           <Button variant="outline" size="sm" className="gap-2 flex-1 sm:flex-initial">
-            <Share2 size={14} /> 
+            <Share2 size={14} />
             <span className="hidden sm:inline">Chia sẻ</span>
           </Button>
           <Button variant="primary" size="sm" className="gap-2 flex-1 sm:flex-initial">
-            <Download size={14} /> 
+            <Download size={14} />
             <span>Xuất PDF</span>
           </Button>
         </div>
@@ -165,32 +165,32 @@ export function ReportView({
 
         <div className="mt-6 lg:mt-8 min-h-[300px] lg:min-h-[400px]">
           <TabsContent value="escape">
-            <CategoryTab 
-              title="Giải pháp thoát nạn" 
+            <CategoryTab
+              title="Giải pháp thoát nạn"
               items={complianceData.escapeSolutions}
               icon={<DoorOpen size={24} className="text-emerald-500" />}
             />
           </TabsContent>
 
           <TabsContent value="fire">
-            <CategoryTab 
-              title="Ngăn cháy lan" 
+            <CategoryTab
+              title="Ngăn cháy lan"
               items={complianceData.fireSpreadPrevention}
               icon={<Flame size={24} className="text-orange-500" />}
             />
           </TabsContent>
 
           <TabsContent value="traffic">
-            <CategoryTab 
-              title="Giao thông chữa cháy" 
+            <CategoryTab
+              title="Giao thông chữa cháy"
               items={complianceData.fireTraffic}
               icon={<Truck size={24} className="text-blue-500" />}
             />
           </TabsContent>
 
           <TabsContent value="tech">
-            <CategoryTab 
-              title="Hệ thống kỹ thuật" 
+            <CategoryTab
+              title="Hệ thống kỹ thuật"
               items={complianceData.technicalSystems}
               icon={<Wrench size={24} className="text-purple-500" />}
             />
@@ -198,7 +198,7 @@ export function ReportView({
         </div>
       </Tabs>
 
-      <CitationList citations={complianceData.citations} />
+      <CitationList citations={complianceData.citations} activeTab={activeTab} />
     </div>
   )
 }

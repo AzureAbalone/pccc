@@ -14,9 +14,9 @@ export function InputView({ onSubmit, isLoading = false, error }: InputViewProps
     "Toà nhà chung cư 25 tầng, diện tích sàn 1000m2 ở Hà Nội."
   )
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (description.trim()) {
-      onSubmit(description)
+      await onSubmit(description)
     }
   }
 
@@ -34,7 +34,7 @@ export function InputView({ onSubmit, isLoading = false, error }: InputViewProps
 
       {/* Error Message */}
       {error && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-200/50 text-red-700"

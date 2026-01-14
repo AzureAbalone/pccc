@@ -7,7 +7,7 @@ export class ChatController {
 
     @Post()
     @HttpCode(HttpStatus.OK)
-    async chat(@Body('prompt') prompt: string) {
-        return this.chatService.generateResponse(prompt);
+    async chat(@Body('prompt') prompt: string, @Body('section') section?: string) {
+        return this.chatService.generateResponse(prompt, section);
     }
 }
