@@ -105,27 +105,27 @@ export function ReportView({
 
   return (
     <div className="space-y-6 lg:space-y-8 pb-8">
-      {/* Stats Header - Unified Panel Design with Watermark Icons */}
+      {/* Stats Header - Horizontal scrollable on mobile, wrap on desktop */}
       <div className="bg-white/90 backdrop-blur-xl rounded-2xl border border-zinc-200/50 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] overflow-hidden animate-fade-in-up">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y divide-zinc-100 sm:divide-y-0 sm:divide-x sm:divide-zinc-100">
+        <div className="grid grid-cols-2">
           {dynamicStats.map((stat, i) => (
             <div 
               key={i} 
-              className="relative p-4 lg:p-5 h-24 lg:h-28 flex flex-col justify-center overflow-hidden group hover:bg-zinc-50/50 transition-colors"
+              className="relative p-4 lg:p-5 flex flex-col justify-center group hover:bg-zinc-50/50 transition-colors border-b border-zinc-100 odd:border-r overflow-hidden"
               style={{ animationDelay: `${i * 50}ms` }}
             >
               {/* Watermark Icon */}
               <stat.icon 
                 strokeWidth={1.5}
-                className="absolute -right-3 -bottom-3 w-16 h-16 text-orange-500/10 group-hover:text-orange-500/20 transition-colors duration-500 -rotate-12" 
+                className="absolute -right-2 -bottom-2 w-12 h-12 text-orange-500/10 group-hover:text-orange-500/20 transition-colors duration-500 -rotate-12" 
               />
               
               {/* Content */}
               <div className="relative z-10 flex flex-col items-start gap-1">
-                <div className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 group-hover:text-amber-600/70 transition-colors">
+                <div className="text-[10px] uppercase tracking-wider font-bold text-zinc-400 group-hover:text-amber-600/70 transition-colors whitespace-nowrap">
                   {stat.label}
                 </div>
-                <div className="font-heading font-bold text-zinc-900 text-sm lg:text-base leading-tight line-clamp-2 w-full pr-2">
+                <div className="font-heading font-bold text-zinc-900 text-sm lg:text-base leading-snug">
                   {stat.value}
                   {stat.unit && (
                     <span className="text-[10px] text-zinc-400 font-medium ml-1 relative -top-0.5">{stat.unit}</span>

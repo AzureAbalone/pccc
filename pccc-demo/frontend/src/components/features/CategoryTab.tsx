@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
-import { Check, ChevronRight, BookOpen } from "lucide-react"
-import { useState } from "react"
+import { Check, BookOpen } from "lucide-react"
+import { useState, useMemo } from "react"
 
 interface Reference {
   source: string
@@ -30,6 +30,17 @@ export function CategoryTab({ title, items, icon }: CategoryTabProps) {
     if (typeof item === 'string') return { content: item, references: [] }
     return item
   }) || []
+
+  // Calculate max width from all references
+  const maxRefWidth = useMemo(() => {
+    const allSources = normalizedItems.flatMap(item => 
+      item.references?.map(r => r.source) || []
+    );
+    const longestSource = allSources.reduce((max, s) => 
+      s.length > max.length ? s : max, '');
+    // Approximate: each character ~7px + icon 10px + padding 16px + gap 4px
+    return Math.max(120, longestSource.length * 7 + 30);
+  }, [normalizedItems]);
 
   // Get color theme based on title
   const getTheme = () => {
@@ -78,8 +89,8 @@ export function CategoryTab({ title, items, icon }: CategoryTabProps) {
         </div>
       </div>
 
-      {/* Items Grid - Card Style with Title */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4">
+      {/* Items - Single Column Full Width */}
+      <div className="flex flex-col gap-2">
         {normalizedItems.map((item, index) => (
           <motion.div
             key={index}
@@ -87,8 +98,8 @@ export function CategoryTab({ title, items, icon }: CategoryTabProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
             className={`
-              relative bg-white/80 backdrop-blur-sm border border-zinc-200/50 rounded-2xl 
-              overflow-hidden hover:shadow-lg hover:border-zinc-300/60 
+              relative bg-white/80 backdrop-blur-sm border border-zinc-200/50 rounded-xl 
+              overflow-hidden hover:shadow-md hover:border-zinc-300/60 
               transition-all duration-300 group cursor-pointer
               ${expandedIndex === index ? 'ring-2 ' + theme.ring + ' ring-offset-2' : ''}
             `}
@@ -97,89 +108,53 @@ export function CategoryTab({ title, items, icon }: CategoryTabProps) {
             {/* Top accent bar */}
             <div className={`h-1 w-full ${theme.accent} opacity-80`} />
 
-            <div className="p-4 lg:p-5">
-              {/* Header row with number and title */}
-              <div className="flex items-start gap-3 mb-3">
-                {/* Number badge */}
+            <div className="p-3">
+              {/* Single row layout */}
+              <div className="flex items-center gap-3">
                 <div className={`
-                  w-8 h-8 rounded-lg ${theme.bg} ${theme.border} border
+                  w-7 h-7 rounded-lg ${theme.bg} ${theme.border} border
                   flex items-center justify-center shrink-0
                   group-hover:scale-110 transition-transform
                 `}>
-                  <span className={`text-sm font-bold ${theme.text}`}>
+                  <span className={`text-xs font-bold ${theme.text}`}>
                     {String(index + 1).padStart(2, '0')}
                   </span>
                 </div>
-
-                {/* Title or first part of content */}
+                {/* Full content inline */}
                 <div className="flex-1 min-w-0">
-                  {item.title ? (
-                    <h3 className="font-heading font-semibold text-zinc-900 text-base leading-snug group-hover:text-zinc-800">
-                      {item.title}
-                    </h3>
-                  ) : (
-                    <h3 className="font-heading font-semibold text-zinc-900 text-base leading-snug group-hover:text-zinc-800 line-clamp-2">
-                      {item.content.split('.')[0]}
-                    </h3>
-                  )}
+                  <p className="text-base text-zinc-900 leading-snug">
+                    {item.title ? `${item.title}: ${item.content}` : item.content}
+                  </p>
                 </div>
 
-                {/* Expand indicator */}
-                <ChevronRight
-                  size={18}
-                  className={`
-                    text-zinc-400 shrink-0 transition-transform duration-300
-                    ${expandedIndex === index ? 'rotate-90' : 'group-hover:translate-x-1'}
-                  `}
-                />
-              </div>
-
-              {/* Content - Show truncated or full based on expansion */}
-              <div className={`
-                text-sm text-zinc-600 leading-relaxed pl-11
-                transition-all duration-300 overflow-hidden
-                ${expandedIndex === index ? 'max-h-96' : 'max-h-16'}
-              `}>
-                <p className={expandedIndex === index ? '' : 'line-clamp-2'}>
-                  {item.title ? item.content : item.content.split('.').slice(1).join('.')}
-                </p>
-              </div>
-
-              {/* References - Show when expanded or has references */}
+              {/* References - inline */}
               {item.references && item.references.length > 0 && (
-                <div className={`
-                  mt-3 pt-3 border-t border-zinc-100 pl-11
-                  transition-all duration-300
-                  ${expandedIndex === index ? 'opacity-100' : 'opacity-70'}
-                `}>
-                  <div className="flex flex-wrap gap-2">
-                    {item.references.map((ref, idx) => (
-                      <a
-                        key={idx}
-                        href={`#citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          const id = `citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
-                          const element = document.getElementById(id);
-                          if (element) {
-                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            element.classList.add('ring-2', 'ring-orange-400', 'ring-offset-2');
-                            setTimeout(() => element.classList.remove('ring-2', 'ring-orange-400', 'ring-offset-2'), 2000);
-                          }
-                        }}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold bg-orange-100/80 text-orange-700 border border-orange-200/50 hover:bg-orange-200 hover:text-orange-800 transition-colors no-underline cursor-pointer shadow-sm select-none"
-                      >
-                        <BookOpen size={12} />
-                        <span>{ref.source}</span>
-                        {ref.clause && (
-                          <span className="text-orange-500/80">• {ref.clause}</span>
-                        )}
-                      </a>
-                    ))}
-                  </div>
+                <div className="shrink-0 flex items-center gap-1.5">
+                  {item.references.slice(0, 2).map((ref, idx) => (
+                    <a
+                      key={idx}
+                      href={`#citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        const id = `citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
+                        const element = document.getElementById(id);
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          element.classList.add('ring-2', 'ring-orange-400', 'ring-offset-2');
+                          setTimeout(() => element.classList.remove('ring-2', 'ring-orange-400', 'ring-offset-2'), 2000);
+                        }
+                      }}
+                      className="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-orange-100/80 text-orange-700 border border-orange-200/50 hover:bg-orange-200 transition-colors no-underline cursor-pointer text-center"
+                      style={{ minWidth: `${maxRefWidth}px` }}
+                    >
+                      <BookOpen size={10} />
+                      <span>{ref.source}</span>
+                    </a>
+                  ))}
                 </div>
               )}
+              </div>
             </div>
 
             {/* Checkmark indicator */}

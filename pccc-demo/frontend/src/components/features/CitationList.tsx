@@ -1,5 +1,6 @@
 import { ArrowUpRight, CheckCircle2, FileText, Scale, BookMarked } from "lucide-react"
 import { motion } from "framer-motion"
+import { useMemo } from "react"
 
 interface CitationListProps {
   citations: {
@@ -56,6 +57,14 @@ export function CitationList({ citations, activeTab }: CitationListProps) {
     return c.category === tabMap[activeTab];
   });
 
+  // Calculate the width needed for the longest source text
+  const maxSourceWidth = useMemo(() => {
+    const longestSource = filteredCitations.reduce((max, c) => 
+      c.source.length > max.length ? c.source : max, '');
+    // Approximate: each character ~8px + icon 12px + padding 20px + gap 6px
+    return Math.max(140, longestSource.length * 8 + 38);
+  }, [filteredCitations]);
+
   return (
     <div className="space-y-4 mt-6 lg:mt-8 pt-6 lg:pt-8 border-t border-zinc-200/60">
       {/* Section Header */}
@@ -77,7 +86,7 @@ export function CitationList({ citations, activeTab }: CitationListProps) {
           <p>Chưa có trích dẫn cụ thể cho phần này.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="flex flex-col gap-2">
           {filteredCitations.map((citation, index) => {
             const standardUrl = getStandardUrl(citation.source, citation.url);
 
@@ -89,7 +98,7 @@ export function CitationList({ citations, activeTab }: CitationListProps) {
                 transition={{ delay: index * 0.05 }}
                 id={`citation-${citation.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`}
                 className="
-                  relative flex flex-col gap-3 p-4 rounded-xl 
+                  relative flex flex-row items-center gap-4 p-3 rounded-xl 
                   bg-gradient-to-br from-white to-orange-50/30 
                   border border-orange-200/40 
                   hover:border-orange-300/60 hover:shadow-md 
@@ -99,13 +108,16 @@ export function CitationList({ citations, activeTab }: CitationListProps) {
                 {/* Source badge row */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <div className="
-                      text-[11px] font-mono font-bold text-orange-700 
-                      px-2.5 py-1.5 rounded-lg 
-                      bg-gradient-to-r from-orange-100 to-amber-100 
-                      border border-orange-200/60 
-                      inline-flex items-center gap-1.5 shadow-sm
-                    ">
+                    <div 
+                      className="
+                        text-[11px] font-mono font-bold text-orange-700 
+                        px-2.5 py-1.5 rounded-lg 
+                        bg-gradient-to-r from-orange-100 to-amber-100 
+                        border border-orange-200/60 
+                        inline-flex items-center justify-center gap-1.5 shadow-sm text-center shrink-0
+                      "
+                      style={{ minWidth: `${maxSourceWidth}px` }}
+                    >
                       <FileText size={12} />
                       {citation.source}
                     </div>
@@ -128,7 +140,7 @@ export function CitationList({ citations, activeTab }: CitationListProps) {
                 </div>
 
                 {/* Citation text */}
-                <p className="text-sm text-zinc-600 leading-relaxed group-hover:text-zinc-800 line-clamp-3">
+                <p className="flex-1 text-base text-zinc-900 leading-snug">
                   {citation.text}
                 </p>
 
