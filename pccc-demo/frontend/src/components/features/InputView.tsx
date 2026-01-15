@@ -20,13 +20,26 @@ const loadingMessages = [
   "Đang tổng hợp kết quả phân tích"
 ]
 
+const STORAGE_KEY = "pccc_building_description"
+
 export function InputView({ onSubmit, isLoading = false, error }: InputViewProps) {
-  const [description, setDescription] = useState(
-    "Toà nhà chung cư 25 tầng, diện tích sàn 1000m2 ở Hà Nội."
-  )
+  const [description, setDescription] = useState(() => {
+    // Load from localStorage on initial mount
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(STORAGE_KEY) || ""
+    }
+    return ""
+  })
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0)
   const [dots, setDots] = useState("")
   const [isHovered, setIsHovered] = useState(false)
+
+  // Save to localStorage whenever description changes
+  useEffect(() => {
+    if (typeof window !== "undefined" && description) {
+      localStorage.setItem(STORAGE_KEY, description)
+    }
+  }, [description])
 
   // Animate dots during loading
   useEffect(() => {
