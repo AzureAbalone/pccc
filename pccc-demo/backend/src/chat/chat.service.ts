@@ -34,13 +34,15 @@ export class ChatService {
     }
 
     private getMaxTokens(section?: string): number {
+        // Each solution: ~80 words = ~100 tokens
+        // 7 solutions + references + citations = ~1500-2000 tokens per section
         switch (section) {
-            case 'overview': return 500;
-            case 'escape': return 1000;
-            case 'fire_spread': return 1000;
-            case 'traffic': return 800;
-            case 'technical': return 1000;
-            default: return 2000; // Safe limit for GPT-3.5
+            case 'overview': return 800;      // Building info only
+            case 'escape': return 2500;       // 5-7 solutions
+            case 'fire_spread': return 2500;  // 5-7 solutions
+            case 'traffic': return 2000;      // 4-6 solutions
+            case 'technical': return 2500;    // 5-7 solutions
+            default: return 4000;             // Full analysis fallback
         }
     }
 

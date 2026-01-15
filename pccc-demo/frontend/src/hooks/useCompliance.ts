@@ -86,7 +86,12 @@ export function useCompliance(): UseComplianceReturn {
         }).json<any>();
 
         const content = response?.choices?.[0]?.message?.content;
-        if (!content) return;
+        console.log(`[${section}] Raw content:`, content?.substring(0, 200));
+
+        if (!content) {
+          console.warn(`[${section}] No content in response`);
+          return;
+        }
 
         // Extract JSON substring to handle chatty preambles
         const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -96,6 +101,13 @@ export function useCompliance(): UseComplianceReturn {
         const sanitizedJson = jsonStr.replace(/[\x00-\x1F\x7F-\x9F]/g, "");
 
         const json = JSON.parse(sanitizedJson);
+        console.log(`[${section}] Parsed JSON keys:`, Object.keys(json));
+        console.log(`[${section}] Solutions count:`, {
+          escape: json.escapeSolutions?.length,
+          fire: json.fireSpreadPrevention?.length,
+          traffic: json.fireTraffic?.length,
+          tech: json.technicalSystems?.length
+        });
 
         setData(prev => {
           if (!prev) return initialData;
@@ -123,7 +135,7 @@ export function useCompliance(): UseComplianceReturn {
           };
         });
       } catch (err) {
-        console.warn(`Failed section ${section}`, err);
+        console.error(`[${section}] Failed to parse:`, err);
       }
     };
 
