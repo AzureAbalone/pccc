@@ -10,6 +10,7 @@
 	"scripts": {
 		"dev": "bun run --filter '*' dev",
 		"build": "bun run --filter '*' build",
+		"start": "bun run --filter '*' start",
 		"lint": "bun run --filter '*' lint",
 		"test": "bun run --filter '@pccc/backend' test"
 	},
