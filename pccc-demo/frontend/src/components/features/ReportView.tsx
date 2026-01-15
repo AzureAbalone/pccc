@@ -77,18 +77,18 @@ export function ReportView({
     floors: null,
     height: null,
     floorArea: null,
-    buildingType: "---",
-    fireClass: "---",
-    hazardGroup: "---"
+    buildingType: null,
+    fireClass: null,
+    hazardGroup: null
   }
 
   const dynamicStats = [
     { label: "Số tầng", value: info.floors ?? "--", unit: "tầng", icon: Layers },
     { label: "Chiều cao", value: info.height ?? "--", unit: "m", icon: ArrowUpFromLine },
     { label: "Diện tích", value: info.floorArea ? info.floorArea.toLocaleString() : "--", unit: "m²", icon: Maximize2 },
-    { label: "Loại CT", value: info.buildingType ?? "---", unit: "", icon: Building2 },
-    { label: "Cấp PCCC", value: info.fireClass ?? "---", unit: "", icon: ShieldCheck },
-    { label: "Nhóm nguy hiểm", value: info.hazardGroup ?? "---", unit: "", icon: AlertTriangle },
+    { label: "Loại CT", value: info.buildingType ?? "--", unit: "", icon: Building2 },
+    { label: "Cấp PCCC", value: info.fireClass ?? "--", unit: "", icon: ShieldCheck },
+    { label: "Nhóm nguy hiểm", value: info.hazardGroup ?? "--", unit: "", icon: AlertTriangle },
   ]
   // Helper to extract unique references from items and look up their text from citations
   const getUniqueReferences = (items: any[]) => {
@@ -136,7 +136,7 @@ export function ReportView({
                 </div>
                 <div className="font-heading font-bold text-zinc-900 text-sm lg:text-base leading-snug">
                   {stat.value}
-                  {stat.unit && (
+                  {stat.unit && stat.value !== "--" && stat.value !== "---" && (
                     <span className="text-[10px] text-zinc-400 font-medium ml-1 relative -top-0.5">{stat.unit}</span>
                   )}
                 </div>
