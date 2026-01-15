@@ -12,6 +12,14 @@ interface NavItemProps {
   onToggleExpand?: () => void
 }
 
+// Smooth spring transition with tiny bounce
+const slideTransition = { 
+  type: "spring" as const, 
+  stiffness: 350, 
+  damping: 30,
+  mass: 1
+}
+
 export function NavItem({ 
   label, 
   icon: Icon, 
@@ -22,6 +30,9 @@ export function NavItem({
   onToggleExpand 
 }: NavItemProps) {
   const hasSubItems = subItems && subItems.length > 0
+  
+  // Parent dot shows when: active AND has no sub-items
+  const showParentDot = isActive && !hasSubItems
 
   return (
     <div className="w-full">
@@ -61,12 +72,20 @@ export function NavItem({
           </div>
         )}
         
-        {!hasSubItems && isActive && (
-          <motion.div 
-            layoutId="activeNavIndicator"
-            className="w-2 h-2 rounded-full bg-orange-500 shadow-sm shadow-orange-300"
-          />
-        )}
+        {/* Parent dot - layoutId for sliding, AnimatePresence for shrink on exit */}
+        <AnimatePresence>
+          {showParentDot && (
+            <motion.div 
+              layoutId="parentNavDot"
+              layout
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={slideTransition}
+              className="w-2 h-2 rounded-full bg-orange-500 shadow-sm shadow-orange-300"
+            />
+          )}
+        </AnimatePresence>
       </button>
 
       <AnimatePresence>
@@ -84,13 +103,28 @@ export function NavItem({
                   key={index}
                   onClick={item.onClick}
                   className={cn(
-                    "w-full text-left text-sm py-2 px-3 rounded-lg transition-all duration-150 relative cursor-pointer",
+                    "w-full flex items-center justify-between text-sm py-2 px-3 rounded-lg transition-all duration-150 relative cursor-pointer",
                     item.isActive 
-                      ? "text-orange-700 font-medium bg-orange-50/80 border-l-2 border-orange-400" 
+                      ? "text-orange-700 font-medium bg-orange-50/80" 
                       : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100/60"
                   )}
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  
+                  {/* Sub-item dot - layoutId for sliding, AnimatePresence for shrink on exit */}
+                  <AnimatePresence>
+                    {item.isActive && (
+                      <motion.div 
+                        layoutId="subNavDot"
+                        layout
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={slideTransition}
+                        className="w-2 h-2 rounded-full bg-orange-500 shadow-sm shadow-orange-300"
+                      />
+                    )}
+                  </AnimatePresence>
                 </button>
               ))}
             </div>

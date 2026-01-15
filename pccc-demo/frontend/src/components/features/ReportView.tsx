@@ -1,4 +1,3 @@
-import { useState } from "react"
 import {
   DoorOpen,
   Flame,
@@ -15,7 +14,6 @@ import {
   ShieldCheck,
   AlertTriangle
 } from "lucide-react"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/Tabs"
 import { Button } from "../ui/Button"
 import { CategoryTab } from "./CategoryTab"
 import { CitationList } from "./CitationList"
@@ -28,24 +26,53 @@ interface ReportViewProps {
   onNavigateToInput?: () => void
 }
 
+// Tab configuration
+const tabConfig = {
+  escape: {
+    title: "Giải pháp thoát nạn",
+    icon: <DoorOpen size={24} className="text-emerald-500" />,
+    dataKey: "escapeSolutions" as const
+  },
+  fire: {
+    title: "Ngăn cháy lan",
+    icon: <Flame size={24} className="text-orange-500" />,
+    dataKey: "fireSpreadPrevention" as const
+  },
+  traffic: {
+    title: "Giao thông chữa cháy",
+    icon: <Truck size={24} className="text-blue-500" />,
+    dataKey: "fireTraffic" as const
+  },
+  tech: {
+    title: "Hệ thống kỹ thuật",
+    icon: <Wrench size={24} className="text-purple-500" />,
+    dataKey: "technicalSystems" as const
+  }
+}
+
+// Helper to extract tab from initialTab prop
+function getActiveTab(initialTab?: string): keyof typeof tabConfig {
+  if (!initialTab || initialTab === 'report') return 'escape'
+  if (initialTab.includes('-')) {
+    const tabPart = initialTab.split('-')[1]
+    if (tabPart && tabPart in tabConfig) {
+      return tabPart as keyof typeof tabConfig
+    }
+  }
+  if (initialTab in tabConfig) {
+    return initialTab as keyof typeof tabConfig
+  }
+  return 'escape'
+}
+
 export function ReportView({
   initialTab = "escape",
   data,
   onNewAnalysis,
   onNavigateToInput
 }: ReportViewProps) {
-  // Internal tab state - only updates this component, not the entire app
-  const [activeTab, setActiveTab] = useState(() => {
-    // If it's just the generic report view, default to escape
-    if (initialTab === 'report' || !initialTab) {
-      return 'escape'
-    }
-    // Extract tab value from initialTab if it's in format "report-xxx"
-    if (initialTab.includes('-')) {
-      return initialTab.split('-')[1] || 'escape'
-    }
-    return initialTab
-  })
+  const activeTab = getActiveTab(initialTab)
+  const currentTab = tabConfig[activeTab]
 
   // Use API data if available. If not, show empty state.
   const complianceData = data
@@ -90,6 +117,7 @@ export function ReportView({
     { label: "Cấp PCCC", value: info.fireClass ?? "--", unit: "", icon: ShieldCheck },
     { label: "Nhóm nguy hiểm", value: info.hazardGroup ?? "--", unit: "", icon: AlertTriangle },
   ]
+
   // Helper to extract unique references from items and look up their text from citations
   const getUniqueReferences = (items: any[]) => {
     if (!items) return []
@@ -112,10 +140,16 @@ export function ReportView({
     })
   }
 
+  // Get data for current tab
+  const getCurrentTabData = () => {
+    const dataKey = currentTab.dataKey
+    return complianceData[dataKey] || []
+  }
+
   return (
     <div className="space-y-6 lg:space-y-8 pb-8">
       {/* Stats Header - Horizontal scrollable on mobile, wrap on desktop */}
-      <div className="bg-white/50 backdrop-blur-xl rounded-2xl border border-white/40 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] overflow-hidden animate-fade-in-up">
+      <div className="bg-white/50 backdrop-blur-xl rounded-2xl border border-white/40 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
         <div className="grid grid-cols-2">
           {dynamicStats.map((stat, i) => (
             <div 
@@ -167,73 +201,20 @@ export function ReportView({
         </div>
       </div>
 
-      {/* Tabs - Internal state, no parent re-render */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="w-full">
-          <TabsTrigger value="escape" icon={<DoorOpen size={18} />}>
-            Thoát nạn
-          </TabsTrigger>
-          <TabsTrigger value="fire" icon={<Flame size={18} />}>
-            Cháy lan
-          </TabsTrigger>
-          <TabsTrigger value="traffic" icon={<Truck size={18} />}>
-            Giao thông
-          </TabsTrigger>
-          <TabsTrigger value="tech" icon={<Wrench size={18} />}>
-            Kỹ thuật
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="mt-6 lg:mt-8 min-h-[300px] lg:min-h-[400px]">
-          <TabsContent value="escape">
-            <CategoryTab
-              title="Giải pháp thoát nạn"
-              items={complianceData.escapeSolutions}
-              icon={<DoorOpen size={24} className="text-emerald-500" />}
-            />
-            <CitationList 
-              activeTab="escape"
-              citations={getUniqueReferences(complianceData.escapeSolutions)} 
-            />
-          </TabsContent>
-
-          <TabsContent value="fire">
-            <CategoryTab
-              title="Ngăn cháy lan"
-              items={complianceData.fireSpreadPrevention}
-              icon={<Flame size={24} className="text-orange-500" />}
-            />
-            <CitationList 
-              activeTab="fire"
-              citations={getUniqueReferences(complianceData.fireSpreadPrevention)} 
-            />
-          </TabsContent>
-
-          <TabsContent value="traffic">
-            <CategoryTab
-              title="Giao thông chữa cháy"
-              items={complianceData.fireTraffic}
-              icon={<Truck size={24} className="text-blue-500" />}
-            />
-            <CitationList 
-              activeTab="traffic"
-              citations={getUniqueReferences(complianceData.fireTraffic)} 
-            />
-          </TabsContent>
-
-          <TabsContent value="tech">
-            <CategoryTab
-              title="Hệ thống kỹ thuật"
-              items={complianceData.technicalSystems}
-              icon={<Wrench size={24} className="text-purple-500" />}
-            />
-            <CitationList 
-              activeTab="tech"
-              citations={getUniqueReferences(complianceData.technicalSystems)} 
-            />
-          </TabsContent>
-        </div>
-      </Tabs>
+      {/* Content - Direct render based on activeTab */}
+      <div key={activeTab} className="min-h-[300px] lg:min-h-[400px] animate-fade-in-up">
+        <CategoryTab
+          key={`category-${activeTab}`}
+          title={currentTab.title}
+          items={getCurrentTabData()}
+          icon={currentTab.icon}
+        />
+        <CitationList 
+          key={`citations-${activeTab}`}
+          activeTab={activeTab}
+          citations={getUniqueReferences(getCurrentTabData())} 
+        />
+      </div>
     </div>
   )
 }

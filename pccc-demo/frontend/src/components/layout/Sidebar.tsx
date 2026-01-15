@@ -1,9 +1,13 @@
+import { useState, useEffect } from "react"
 import { 
   Building2, 
   FileText, 
   ShieldCheck, 
   BookOpen, 
-  Flame
+  Flame,
+  DoorOpen,
+  Truck,
+  Wrench
 } from "lucide-react"
 import { NavItem } from "./NavItem"
 
@@ -12,7 +16,26 @@ interface SidebarProps {
   onNavigate: (view: string) => void
 }
 
+// Design sub-items with icons
+const designSubItems = [
+  { value: "report-escape", label: "Thoát nạn", icon: DoorOpen },
+  { value: "report-fire", label: "Cháy lan", icon: Flame },
+  { value: "report-traffic", label: "Giao thông", icon: Truck },
+  { value: "report-tech", label: "Kỹ thuật", icon: Wrench },
+]
+
 export function Sidebar({ currentView, onNavigate }: SidebarProps) {
+  // Auto-expand when viewing report
+  const isReportView = currentView === 'report' || currentView.startsWith('report-')
+  const [isDesignExpanded, setIsDesignExpanded] = useState(isReportView)
+
+  // Keep expanded state synced with view
+  useEffect(() => {
+    if (isReportView) {
+      setIsDesignExpanded(true)
+    }
+  }, [isReportView])
+
   return (
     <aside className="hidden lg:flex w-64 h-screen glass-panel flex-col fixed left-0 top-0 z-40">
       {/* Logo */}
@@ -39,8 +62,14 @@ export function Sidebar({ currentView, onNavigate }: SidebarProps) {
         <NavItem 
           label="Thiết kế" 
           icon={FileText} 
-          isActive={currentView === 'report' || currentView.startsWith('report-')}
-          onClick={() => onNavigate('report')}
+          isActive={isReportView}
+          isExpanded={isDesignExpanded}
+          onToggleExpand={() => setIsDesignExpanded(!isDesignExpanded)}
+          subItems={designSubItems.map(item => ({
+            label: item.label,
+            isActive: currentView === item.value,
+            onClick: () => onNavigate(item.value)
+          }))}
         />
 
         <div className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest px-3 mb-3 mt-6">Compliance</div>

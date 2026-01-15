@@ -18,7 +18,7 @@ function App() {
   const handleInputSubmit = async (description: string) => {
     const result = await analyze({ description })
     if (result) {
-      setCurrentView('report') // Just 'report', tabs handled internally
+      setCurrentView('report-escape') // Navigate to first tab after analysis
     }
   }
 

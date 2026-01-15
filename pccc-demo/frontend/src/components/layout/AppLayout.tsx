@@ -32,7 +32,7 @@ export function AppLayout({ children, currentView, onNavigate }: AppLayoutProps)
         
         <div className="max-w-5xl mx-auto px-4 lg:px-8 py-6 lg:py-10">
           <motion.div
-            key={currentView}
+            key={currentView.startsWith('report') ? 'report' : currentView}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
