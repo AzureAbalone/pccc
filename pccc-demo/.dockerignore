@@ -1,0 +1,48 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs
+**/dist
+**/.next
+**/build
+
+# Development files
+**/.env
+**/.env.local
+**/.env.development
+**/.env.test
+
+# IDE and editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Logs
+**/*.log
+**/logs
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+**/coverage
+**/*.test.ts
+**/*.spec.ts
+**/test
+
+# Documentation
+*.md
+!README.md
+
+# Agent/AI folders
+.agent
+.claude
+.opencode
+.shared

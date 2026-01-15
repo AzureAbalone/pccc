@@ -1,0 +1,84 @@
+# ================================
+# DigitalOcean App Platform Configuration
+# ================================
+# This file defines how to deploy the PCCC Demo application
+# Docs: https://docs.digitalocean.com/products/app-platform/reference/app-spec/
+
+name: pccc-demo
+
+# ================================
+# Services
+# ================================
+services:
+  # Backend API Service
+  - name: backend
+    dockerfile_path: backend/Dockerfile
+    source_dir: /
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    
+    # Health check
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 10
+      period_seconds: 30
+      timeout_seconds: 5
+      success_threshold: 1
+      failure_threshold: 3
+    
+    # Environment variables
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: CORS_ORIGIN
+        value: ${frontend.PUBLIC_URL}
+      - key: OPEN_ROUTER_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+    
+    # Routes
+    routes:
+      - path: /api
+        preserve_path_prefix: true
+
+  # Frontend Static Site
+  - name: frontend
+    dockerfile_path: frontend/Dockerfile
+    source_dir: /
+    http_port: 80
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    
+    # Build args for Vite
+    build_command: |
+      export VITE_API_URL=${backend.PRIVATE_URL}
+    
+    # Environment variables (build time)
+    envs:
+      - key: VITE_API_URL
+        value: ${backend.PUBLIC_URL}
+        scope: BUILD_TIME
+      - key: VITE_APP_NAME
+        value: "PCCC Demo"
+        scope: BUILD_TIME
+    
+    # Routes
+    routes:
+      - path: /
+
+# ================================
+# Database (optional - add if needed)
+# ================================
+# databases:
+#   - name: pccc-db
+#     engine: PG
+#     version: "16"
+#     size: db-s-dev-database
+
+# ================================
+# Region
+# ================================
+region: sgp1  # Singapore - closest to Vietnam
