@@ -1,6 +1,7 @@
 import { Sidebar } from "./Sidebar"
 import { MobileHeader } from "./MobileHeader"
 import { BottomNav } from "./BottomNav"
+import { FireBackground } from "./FireBackground"
 import { motion } from "framer-motion"
 
 interface AppLayoutProps {
@@ -12,12 +13,8 @@ interface AppLayoutProps {
 export function AppLayout({ children, currentView, onNavigate }: AppLayoutProps) {
   return (
     <div className="min-h-screen text-zinc-900 noise-overlay relative">
-      {/* Decorative Orbs - Soft Visual Effects */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="orb orb-orange w-[600px] h-[600px] -top-48 -right-48 opacity-30" />
-        <div className="orb orb-blue w-[500px] h-[500px] top-1/2 -left-64 opacity-20" />
-        <div className="orb orb-orange w-[400px] h-[400px] -bottom-32 right-1/4 opacity-25" />
-      </div>
+      {/* Dynamic Fire Background */}
+      <FireBackground />
 
       {/* Mobile Header */}
       <MobileHeader />

@@ -106,7 +106,7 @@ export function ReportView({
   return (
     <div className="space-y-6 lg:space-y-8 pb-8">
       {/* Stats Header - Horizontal scrollable on mobile, wrap on desktop */}
-      <div className="bg-white/90 backdrop-blur-xl rounded-2xl border border-zinc-200/50 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.05)] overflow-hidden animate-fade-in-up">
+      <div className="bg-white/20 backdrop-blur-xl rounded-2xl border border-white/40 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] overflow-hidden animate-fade-in-up">
         <div className="grid grid-cols-2">
           {dynamicStats.map((stat, i) => (
             <div 

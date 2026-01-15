@@ -98,8 +98,8 @@ export function CategoryTab({ title, items, icon }: CategoryTabProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
             className={`
-              relative bg-white/80 backdrop-blur-sm border border-zinc-200/50 rounded-xl 
-              overflow-hidden hover:shadow-md hover:border-zinc-300/60 
+              relative bg-white/20 backdrop-blur-md border border-white/30 rounded-xl 
+              overflow-hidden hover:shadow-lg hover:border-white/50 hover:bg-white/30
               transition-all duration-300 group cursor-pointer
               ${expandedIndex === index ? 'ring-2 ' + theme.ring + ' ring-offset-2' : ''}
             `}

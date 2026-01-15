@@ -21,7 +21,7 @@ export function InputView({ onSubmit, isLoading = false, error }: InputViewProps
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 lg:space-y-10 min-h-[calc(100vh-14rem)] flex flex-col justify-center">
+    <div className="max-w-3xl mx-auto space-y-8 lg:space-y-10 h-[calc(100vh-10rem)] lg:h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
       {/* Header */}
       <div className="space-y-4 animate-fade-in-up text-center">
         <h1 className="font-heading text-3xl lg:text-4xl font-bold tracking-tight text-zinc-900">
@@ -45,7 +45,7 @@ export function InputView({ onSubmit, isLoading = false, error }: InputViewProps
       )}
 
       {/* Input Area - Clean / No Box */}
-      <div className="relative animate-fade-in-up stagger-1 group">
+      <div className="relative animate-fade-in-up stagger-1 group w-full">
         <div className="absolute inset-0 bg-white/40 backdrop-blur-sm rounded-3xl -z-10 transition-colors group-hover:bg-white/60" />
         <Textarea 
           value={description}

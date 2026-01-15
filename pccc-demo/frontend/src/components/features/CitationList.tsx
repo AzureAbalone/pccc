@@ -99,9 +99,9 @@ export function CitationList({ citations, activeTab }: CitationListProps) {
                 id={`citation-${citation.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`}
                 className="
                   relative flex flex-row items-center gap-4 p-3 rounded-xl 
-                  bg-gradient-to-br from-white to-orange-50/30 
-                  border border-orange-200/40 
-                  hover:border-orange-300/60 hover:shadow-md 
+                  bg-white/20 backdrop-blur-sm
+                  border border-orange-200/30 
+                  hover:border-orange-300/60 hover:shadow-md hover:bg-white/30
                   transition-all group scroll-mt-20
                 "
               >
