@@ -80,7 +80,7 @@ export function CategoryTab({ title, items, icon }: CategoryTabProps) {
     <div className="space-y-4 lg:space-y-6">
       {/* Header with Lucide icon */}
       <div className="flex items-center gap-3 mb-4 lg:mb-6">
-        <div className="w-12 h-12 rounded-xl bg-white border border-zinc-200/60 shadow-sm flex items-center justify-center">
+        <div className="w-12 h-12 rounded-xl bg-white/50 backdrop-blur-sm border border-zinc-200/60 shadow-sm flex items-center justify-center">
           {icon}
         </div>
         <div>
@@ -98,8 +98,8 @@ export function CategoryTab({ title, items, icon }: CategoryTabProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
             className={`
-              relative bg-white/20 backdrop-blur-md border border-white/30 rounded-xl 
-              overflow-hidden hover:shadow-lg hover:border-white/50 hover:bg-white/30
+              relative bg-white/50 backdrop-blur-sm border border-zinc-200/40 rounded-xl 
+              hover:shadow-lg hover:border-zinc-300/60 hover:bg-white/70
               transition-all duration-300 group cursor-pointer
               ${expandedIndex === index ? 'ring-2 ' + theme.ring + ' ring-offset-2' : ''}
             `}
@@ -122,7 +122,7 @@ export function CategoryTab({ title, items, icon }: CategoryTabProps) {
                 </div>
                 {/* Full content inline */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-base text-zinc-900 leading-snug">
+                  <p className="text-base text-zinc-900 leading-snug text-justify">
                     {item.title ? `${item.title}: ${item.content}` : item.content}
                   </p>
                 </div>

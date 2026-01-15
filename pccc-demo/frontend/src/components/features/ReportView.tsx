@@ -90,23 +90,32 @@ export function ReportView({
     { label: "Cấp PCCC", value: info.fireClass ?? "---", unit: "", icon: ShieldCheck },
     { label: "Nhóm nguy hiểm", value: info.hazardGroup ?? "---", unit: "", icon: AlertTriangle },
   ]
-  // Helper to extract unique references from items
+  // Helper to extract unique references from items and look up their text from citations
   const getUniqueReferences = (items: any[]) => {
     if (!items) return []
     const references = items.flatMap(item => item.references || [])
     const uniqueRefs = Array.from(new Map(references.map(ref => [ref.source, ref])).values())
-    return uniqueRefs.map(ref => ({
-      source: ref.source,
-      text: ref.text,
-      url: ref.url,
-      category: activeTab
-    }))
+    
+    // Look up the actual citation text from complianceData.citations
+    return uniqueRefs.map(ref => {
+      // Find matching citation by source
+      const matchedCitation = complianceData?.citations?.find(
+        (c: any) => c.source === ref.source || c.source.includes(ref.source) || ref.source.includes(c.source)
+      )
+      return {
+        source: ref.source,
+        text: matchedCitation?.text || ref.text || ref.requirement || `Tham chiếu: ${ref.clause || ref.source}`,
+        url: matchedCitation?.url || ref.url,
+        clause: ref.clause,
+        category: activeTab
+      }
+    })
   }
 
   return (
     <div className="space-y-6 lg:space-y-8 pb-8">
       {/* Stats Header - Horizontal scrollable on mobile, wrap on desktop */}
-      <div className="bg-white/20 backdrop-blur-xl rounded-2xl border border-white/40 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] overflow-hidden animate-fade-in-up">
+      <div className="bg-white/50 backdrop-blur-xl rounded-2xl border border-white/40 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] overflow-hidden animate-fade-in-up">
         <div className="grid grid-cols-2">
           {dynamicStats.map((stat, i) => (
             <div 

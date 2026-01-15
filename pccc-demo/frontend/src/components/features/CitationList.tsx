@@ -1,4 +1,4 @@
-import { ArrowUpRight, CheckCircle2, FileText, Scale, BookMarked } from "lucide-react"
+import { ArrowUpRight, FileText, Scale, BookMarked } from "lucide-react"
 import { motion } from "framer-motion"
 import { useMemo } from "react"
 
@@ -98,49 +98,36 @@ export function CitationList({ citations, activeTab }: CitationListProps) {
                 transition={{ delay: index * 0.05 }}
                 id={`citation-${citation.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`}
                 className="
-                  relative flex flex-row items-center gap-4 p-3 rounded-xl 
-                  bg-white/20 backdrop-blur-sm
-                  border border-orange-200/30 
-                  hover:border-orange-300/60 hover:shadow-md hover:bg-white/30
+                  relative flex flex-row items-center justify-center gap-4 p-4 rounded-xl 
+                  bg-white/50 backdrop-blur-sm border border-orange-200/30 
+                  hover:border-orange-300/60 hover:shadow-lg hover:bg-white/70
                   transition-all group scroll-mt-20
                 "
               >
-                {/* Source badge row */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <div 
-                      className="
-                        text-[11px] font-mono font-bold text-orange-700 
-                        px-2.5 py-1.5 rounded-lg 
-                        bg-gradient-to-r from-orange-100 to-amber-100 
-                        border border-orange-200/60 
-                        inline-flex items-center justify-center gap-1.5 shadow-sm text-center shrink-0
-                      "
-                      style={{ minWidth: `${maxSourceWidth}px` }}
-                    >
-                      <FileText size={12} />
-                      {citation.source}
-                    </div>
-
-                    {citation.clause && (
-                      <div className="
-                        text-[10px] font-medium text-zinc-500 
-                        px-2 py-1 rounded-md 
-                        bg-zinc-100 border border-zinc-200/50
-                      ">
-                        {citation.clause}
-                      </div>
-                    )}
-                  </div>
-
-                  <CheckCircle2
-                    size={18}
-                    className="text-emerald-500 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  />
+                {/* Source badge */}
+                <div 
+                  className="
+                    shrink-0 text-[11px] font-mono font-bold text-orange-700 
+                    px-2.5 py-1.5 rounded-lg 
+                    bg-gradient-to-r from-orange-100 to-amber-100 
+                    border border-orange-200/60 
+                    inline-flex items-center justify-center gap-1.5 shadow-sm text-center
+                  "
+                  style={{ minWidth: `${maxSourceWidth}px` }}
+                >
+                  <FileText size={12} />
+                  {citation.source}
                 </div>
 
-                {/* Citation text */}
-                <p className="flex-1 text-base text-zinc-900 leading-snug">
+                {/* Clause badge */}
+                {citation.clause && (
+                  <div className="shrink-0 text-[10px] font-medium text-zinc-500 px-2 py-1 rounded-md bg-zinc-100 border border-zinc-200/50">
+                    {citation.clause}
+                  </div>
+                )}
+
+                {/* Citation text - justified */}
+                <p className="flex-1 text-base text-zinc-800 leading-snug text-justify">
                   {citation.text}
                 </p>
 
@@ -151,7 +138,7 @@ export function CitationList({ citations, activeTab }: CitationListProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="
-                      self-start flex items-center gap-1.5 
+                      shrink-0 flex items-center gap-1.5 
                       px-3 py-1.5 text-xs font-medium 
                       text-blue-600 bg-blue-50 hover:bg-blue-100 
                       border border-blue-200/50 rounded-lg 

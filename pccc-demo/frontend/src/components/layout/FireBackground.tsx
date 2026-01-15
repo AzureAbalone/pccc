@@ -18,7 +18,7 @@ export function FireBackground() {
       left: Math.random() * 100, // 0-100%
       duration: Math.random() * 14 + 10, // 10-24s
       delay: Math.random() * 10, // 0-10s stagger
-      opacity: Math.random() * 0.2 + 0.25, // 0.25-0.45 (subtle but visible)
+      opacity: Math.random() * 0.2 + 0.5, // 0.5-0.7 (clearly visible)
     }))
   }, [])
 
@@ -48,10 +48,10 @@ export function FireBackground() {
             height: `${bubble.size}px`,
             left: `${bubble.left}%`,
             bottom: '-100px',
-            background: `radial-gradient(circle at 30% 30%, 
-              rgba(251, 191, 36, ${bubble.opacity}) 0%, 
-              rgba(251, 146, 60, ${bubble.opacity * 0.8}) 40%, 
-              rgba(239, 68, 68, ${bubble.opacity * 0.6}) 70%,
+            background: `radial-gradient(circle at center, 
+              rgba(255, 215, 180, ${bubble.opacity}) 0%, 
+              rgba(255, 180, 140, ${bubble.opacity * 0.8}) 30%, 
+              rgba(253, 186, 116, ${bubble.opacity * 0.4}) 60%,
               transparent 100%)`,
             filter: `blur(${bubble.size / 4}px)`, // Large Blur
             boxShadow: `0 0 ${bubble.size / 2}px rgba(251, 146, 60, ${bubble.opacity * 0.5})`,
