@@ -1,6 +1,6 @@
-import { motion } from "framer-motion"
-import { Check, BookOpen } from "lucide-react"
-import { useState, useMemo } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Check, BookOpen, FileText } from "lucide-react"
+import { useState, useMemo, useRef, useEffect } from "react"
 
 interface Reference {
   source: string
@@ -24,6 +24,22 @@ interface CategoryTabProps {
 
 export function CategoryTab({ title, items, icon }: CategoryTabProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
+  // State: track which ref popup is open (format: "itemIndex-refIndex" or null)
+  const [activeRefPopup, setActiveRefPopup] = useState<string | null>(null)
+  const popupContainerRef = useRef<HTMLDivElement>(null)
+
+  // Close popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (popupContainerRef.current && !popupContainerRef.current.contains(e.target as Node)) {
+        setActiveRefPopup(null)
+      }
+    }
+    if (activeRefPopup) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [activeRefPopup])
 
   // Handle case where items might still be strings during migration or error
   const normalizedItems = items?.map(item => {
@@ -127,31 +143,98 @@ export function CategoryTab({ title, items, icon }: CategoryTabProps) {
                   </p>
                 </div>
 
-              {/* References - inline */}
+              {/* References - inline (desktop: full text, mobile: icon with popup) */}
               {item.references && item.references.length > 0 && (
-                <div className="shrink-0 flex items-center gap-1.5">
-                  {item.references.slice(0, 2).map((ref, idx) => (
-                    <a
-                      key={idx}
-                      href={`#citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        const id = `citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`;
-                        const element = document.getElementById(id);
-                        if (element) {
-                          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                          element.classList.add('ring-2', 'ring-orange-400', 'ring-offset-2');
-                          setTimeout(() => element.classList.remove('ring-2', 'ring-orange-400', 'ring-offset-2'), 2000);
-                        }
-                      }}
-                      className="inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-orange-100/80 text-orange-700 border border-orange-200/50 hover:bg-orange-200 transition-colors no-underline cursor-pointer text-center"
-                      style={{ minWidth: `${maxRefWidth}px` }}
-                    >
-                      <BookOpen size={10} />
-                      <span>{ref.source}</span>
-                    </a>
-                  ))}
+                <div ref={popupContainerRef} className="shrink-0 flex items-center gap-1.5 relative">
+                  {item.references.slice(0, 2).map((ref, idx) => {
+                    const popupId = `${index}-${idx}`
+                    const isPopupOpen = activeRefPopup === popupId
+                    
+                    return (
+                      <div key={idx} className="relative">
+                        {/* Mobile: Icon only with popup */}
+                        <button
+                          className="md:hidden w-7 h-7 rounded-lg bg-orange-100/80 text-orange-700 border border-orange-200/50 hover:bg-orange-200 flex items-center justify-center transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setActiveRefPopup(isPopupOpen ? null : popupId)
+                          }}
+                          aria-label={ref.source}
+                        >
+                          <FileText size={14} />
+                        </button>
+                        
+                        {/* Mobile Popup */}
+                        <AnimatePresence>
+                          {isPopupOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, x: 10, scale: 0.95 }}
+                              animate={{ opacity: 1, x: 0, scale: 1 }}
+                              exit={{ opacity: 0, x: 10, scale: 0.95 }}
+                              transition={{ duration: 0.15 }}
+                              className="
+                                md:hidden absolute right-full mr-2 top-1/2 -translate-y-1/2 z-50
+                                px-3 py-2 rounded-lg shadow-lg
+                                bg-white border border-orange-200
+                                w-max whitespace-nowrap
+                              "
+                            >
+                              <div className="flex items-center gap-2">
+                                <FileText size={12} className="text-orange-600 shrink-0" />
+                                <span className="text-xs font-mono font-semibold text-orange-700 break-words">{ref.source}</span>
+                              </div>
+                              {ref.clause && (
+                                <div className="text-[10px] text-zinc-500 mt-1">{ref.clause}</div>
+                              )}
+                              <a
+                                href={`#citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  e.preventDefault()
+                                  setActiveRefPopup(null)
+                                  const id = `citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`
+                                  const element = document.getElementById(id)
+                                  if (element) {
+                                    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                                    element.classList.add('ring-2', 'ring-orange-400', 'ring-offset-2')
+                                    setTimeout(() => element.classList.remove('ring-2', 'ring-orange-400', 'ring-offset-2'), 2000)
+                                  }
+                                }}
+                                className="text-[10px] font-medium text-blue-600 hover:underline mt-1 block"
+                              >
+                                Xem chi tiết ↓
+                              </a>
+                              {/* Arrow pointer on right */}
+                              <div className="absolute left-full top-1/2 -translate-y-1/2 -translate-x-[1px]">
+                                <div className="w-0 h-0 border-t-[6px] border-b-[6px] border-l-[6px] border-transparent border-l-white" />
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                        
+                        {/* Desktop: Full text badge */}
+                        <a
+                          href={`#citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            const id = `citation-${ref.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`
+                            const element = document.getElementById(id)
+                            if (element) {
+                              element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                              element.classList.add('ring-2', 'ring-orange-400', 'ring-offset-2')
+                              setTimeout(() => element.classList.remove('ring-2', 'ring-orange-400', 'ring-offset-2'), 2000)
+                            }
+                          }}
+                          className="hidden md:inline-flex items-center justify-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-orange-100/80 text-orange-700 border border-orange-200/50 hover:bg-orange-200 transition-colors no-underline cursor-pointer text-center"
+                          style={{ minWidth: `${maxRefWidth}px` }}
+                        >
+                          <BookOpen size={10} />
+                          <span>{ref.source}</span>
+                        </a>
+                      </div>
+                    )
+                  })}
                 </div>
               )}
               </div>

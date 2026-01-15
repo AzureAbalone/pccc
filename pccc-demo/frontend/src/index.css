@@ -51,11 +51,17 @@
 /* ========================================
    BACKGROUND - Ethereal Mesh Gradient
    ======================================== */
+html {
+  background-color: #FAFBFC;
+  overflow-x: hidden;
+}
+
 body {
   @apply antialiased;
   font-family: var(--font-sans);
   color: hsl(240 10% 15%);
   background-color: transparent;
+  overflow-x: hidden;
 
   /* Base background - very subtle, allows FireBackground to show through */
   background-image:
@@ -64,17 +70,14 @@ body {
   background-attachment: fixed;
 }
 
-html {
-  background-color: #FAFBFC;
-}
-
 /* Noise Texture Overlay - Light Mode (inverted, subtle grain) */
 .noise-overlay::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 0;
+  /* Behind interactive elements */
   opacity: 0.018;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react"
 import {
   DoorOpen,
   Flame,
@@ -15,6 +16,7 @@ import {
   AlertTriangle
 } from "lucide-react"
 import { Button } from "../ui/Button"
+import { MobileTabSelector } from "../ui/MobileTabSelector"
 import { CategoryTab } from "./CategoryTab"
 import { CitationList } from "./CitationList"
 import type { ComplianceResponse } from "@pccc/shared"
@@ -71,8 +73,23 @@ export function ReportView({
   onNewAnalysis,
   onNavigateToInput
 }: ReportViewProps) {
-  const activeTab = getActiveTab(initialTab)
+  // Local state for mobile tab selection
+  const [localActiveTab, setLocalActiveTab] = useState<keyof typeof tabConfig>(() => getActiveTab(initialTab))
+  
+  // Sync with initialTab prop changes (from sidebar navigation)
+  useEffect(() => {
+    setLocalActiveTab(getActiveTab(initialTab))
+  }, [initialTab])
+  
+  const activeTab = localActiveTab
   const currentTab = tabConfig[activeTab]
+  
+  // Handler for mobile tab change
+  const handleMobileTabChange = (tabId: string) => {
+    if (tabId in tabConfig) {
+      setLocalActiveTab(tabId as keyof typeof tabConfig)
+    }
+  }
 
   // Use API data if available. If not, show empty state.
   const complianceData = data
@@ -148,13 +165,18 @@ export function ReportView({
 
   return (
     <div className="space-y-6 lg:space-y-8 pb-8">
-      {/* Stats Header - Horizontal scrollable on mobile, wrap on desktop */}
+      {/* Stats Header - 2 cols on mobile, 3 cols on desktop */}
       <div className="bg-white/50 backdrop-blur-xl rounded-2xl border border-white/40 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
-        <div className="grid grid-cols-2">
+        <div className="grid grid-cols-2 lg:grid-cols-3">
           {dynamicStats.map((stat, i) => (
             <div 
               key={i} 
-              className="relative p-4 lg:p-5 flex flex-col justify-center group hover:bg-zinc-50/50 transition-colors border-b border-zinc-100 odd:border-r overflow-hidden"
+              className={`
+                relative p-4 lg:p-5 flex flex-col justify-center group hover:bg-zinc-50/50 transition-colors overflow-hidden
+                border-b border-zinc-100
+                ${i % 2 === 0 ? 'border-r lg:border-r-0' : ''}
+                ${i % 3 !== 2 ? 'lg:border-r' : ''}
+              `}
               style={{ animationDelay: `${i * 50}ms` }}
             >
               {/* Watermark Icon */}
@@ -200,6 +222,12 @@ export function ReportView({
           </Button>
         </div>
       </div>
+
+      {/* Mobile Tab Selector - Only visible on mobile */}
+      <MobileTabSelector 
+        activeTab={activeTab} 
+        onTabChange={handleMobileTabChange} 
+      />
 
       {/* Content - Direct render based on activeTab */}
       <div key={activeTab} className="min-h-[300px] lg:min-h-[400px] animate-fade-in-up">

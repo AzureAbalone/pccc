@@ -57,12 +57,20 @@ export function CitationList({ citations, activeTab }: CitationListProps) {
     return c.category === tabMap[activeTab];
   });
 
-  // Calculate the width needed for the longest source text
+  // Calculate the width needed for the longest source text (desktop only)
   const maxSourceWidth = useMemo(() => {
     const longestSource = filteredCitations.reduce((max, c) => 
       c.source.length > max.length ? c.source : max, '');
-    // Approximate: each character ~8px + icon 12px + padding 20px + gap 6px
-    return Math.max(140, longestSource.length * 8 + 38);
+    // Approximate: each character ~7px + icon 12px + padding 20px + gap 6px
+    return Math.max(160, longestSource.length * 7 + 38);
+  }, [filteredCitations]);
+
+  // Calculate the width needed for the longest clause text (desktop only)
+  const maxClauseWidth = useMemo(() => {
+    const longestClause = filteredCitations.reduce((max, c) => 
+      (c.clause?.length || 0) > max.length ? (c.clause || '') : max, '');
+    // Approximate: each character ~6px + padding 16px
+    return longestClause ? Math.max(60, longestClause.length * 6 + 16) : 0;
   }, [filteredCitations]);
 
   return (
@@ -98,47 +106,73 @@ export function CitationList({ citations, activeTab }: CitationListProps) {
                 transition={{ delay: index * 0.05 }}
                 id={`citation-${citation.source.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '')}`}
                 className="
-                  relative flex flex-row items-center justify-center gap-4 p-4 rounded-xl 
+                  relative flex flex-col md:flex-row md:items-center justify-start gap-3 md:gap-4 p-4 rounded-xl 
                   bg-white/50 backdrop-blur-sm border border-orange-200/30 
                   hover:border-orange-300/60 hover:shadow-lg hover:bg-white/70
                   transition-all group scroll-mt-20
                 "
               >
-                {/* Source badge */}
-                <div 
-                  className="
-                    shrink-0 text-[11px] font-mono font-bold text-orange-700 
-                    px-2.5 py-1.5 rounded-lg 
-                    bg-gradient-to-r from-orange-100 to-amber-100 
-                    border border-orange-200/60 
-                    inline-flex items-center justify-center gap-1.5 shadow-sm text-center
-                  "
-                  style={{ minWidth: `${maxSourceWidth}px` }}
-                >
-                  <FileText size={12} />
-                  {citation.source}
+                {/* Top row on mobile: Source + Clause badges */}
+                <div className="flex items-center gap-2 flex-wrap md:contents">
+                  {/* Source badge */}
+                  <div 
+                    className="
+                      shrink-0 text-[11px] font-mono font-bold text-orange-700 
+                      px-2.5 py-1.5 rounded-lg 
+                      bg-gradient-to-r from-orange-100 to-amber-100 
+                      border border-orange-200/60 
+                      inline-flex items-center gap-1.5 shadow-sm
+                      w-auto md:min-w-[var(--source-width)] md:justify-center
+                    "
+                    style={{ '--source-width': `${maxSourceWidth}px` } as React.CSSProperties}
+                  >
+                    <FileText size={12} className="shrink-0" />
+                    <span className="truncate md:whitespace-normal">{citation.source}</span>
+                  </div>
+
+                  {/* Clause badge */}
+                  {citation.clause && (
+                    <div 
+                      className="shrink-0 text-[10px] font-medium text-zinc-500 px-2 py-1 rounded-md bg-zinc-100 border border-zinc-200/50 text-center w-auto md:min-w-[var(--clause-width)]"
+                      style={{ '--clause-width': maxClauseWidth > 0 ? `${maxClauseWidth}px` : 'auto' } as React.CSSProperties}
+                    >
+                      {citation.clause}
+                    </div>
+                  )}
+                  
+                  {/* Link button - mobile only, inline with badges */}
+                  {standardUrl && (
+                    <a
+                      href={standardUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="
+                        md:hidden shrink-0 w-8 h-8 flex items-center justify-center
+                        text-blue-600 bg-blue-50 hover:bg-blue-100 
+                        border border-blue-200/50 rounded-lg 
+                        transition-all ml-auto
+                      "
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label="Xem văn bản gốc"
+                    >
+                      <ArrowUpRight size={16} />
+                    </a>
+                  )}
                 </div>
 
-                {/* Clause badge */}
-                {citation.clause && (
-                  <div className="shrink-0 text-[10px] font-medium text-zinc-500 px-2 py-1 rounded-md bg-zinc-100 border border-zinc-200/50">
-                    {citation.clause}
-                  </div>
-                )}
-
-                {/* Citation text - justified */}
+                {/* Citation text - full width on mobile */}
                 <p className="flex-1 text-base text-zinc-800 leading-snug text-justify">
                   {citation.text}
                 </p>
 
-                {/* Link button */}
+                {/* Link button - desktop only */}
                 {standardUrl && (
                   <a
                     href={standardUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="
-                      shrink-0 flex items-center gap-1.5 
+                      hidden md:flex shrink-0 items-center gap-1.5 
                       px-3 py-1.5 text-xs font-medium 
                       text-blue-600 bg-blue-50 hover:bg-blue-100 
                       border border-blue-200/50 rounded-lg 
